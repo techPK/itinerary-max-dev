@@ -17,18 +17,22 @@
 		  <button data-ng-click="whenChanged()" >Compute NYC visit days...</button>
 		  <br> <br>
 		  <table border="1">
+		  	<thead>
 		  	<tr>
 		  	  <th>Day</th>
 		  	  <th>Start</th>
 		  	  <th>End</th>
-		  	  <th>Edit?</th>
 		  	</tr>
+		  	</thead>
+		  	<tbody>
 		  	<tr ng-repeat="day in days">
-		  	  <td>{{day.date}}</td>
-		  	  <td>{{day.timeStart}}</td>
-		  	  <td>{{day.timeStop}}</td>
-		  	  <td><button class="btn btn-mini">Edit</button></td>
+		  	  <td><input type="text" name="days[{{$index}}].date" value="{{day.date}}" readonly maxlength="10" /></td>
+		  	  <td><input type="time" ng-model="day.timeStart" /></td>
+		  	  <td><input type="time" ng-model="day.timeStop"  /></td>
+		  	  <td><button class="btn btn-mini" ng-click="dateDelete({{$index}})">Delete</button></td>
+		  	  </td>
 		  	</tr>
+		  	</tbody>
 		  </table>
 		</form>
 	</div>

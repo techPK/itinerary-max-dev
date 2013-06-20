@@ -18,28 +18,31 @@ module.directive 'input', ->
 
 @ItenararyWhenCtrl = ($scope) ->
   initDate = new Date()
-  $scope.ItenararyMAX = {}
+  $scope.days = []
 
-  # $scope.ItenararyMAX.daysFrom = "#{initDate.getFullYear()}-#{initDate.getMonth() + 1}-#{initDate.getDate()}"
-  # $scope.ItenararyMAX.daysTo = $scope.ItenararyMAX.daysFrom
-
-  $scope.days = [
-    {date: "#{initDate.getMonth() + 1}/#{initDate.getDate()}/#{initDate.getFullYear()}", timeStart: '08:00am', timeStop: '10:00pm'}
-  ]
-  
 
   $scope.whenChanged = ->
-    dayStep = new Date($scope.ItenararyMAX.daysFrom)
-    dayStop = new Date($scope.ItenararyMAX.daysTo)
+    dayStep = new Date($scope.ItenararyMAX.daysFrom + ' 08:00:00')
+    dayStop = new Date($scope.ItenararyMAX.daysTo + ' 22:00:00')
     unless (dayStep == 'Invalid Date') and (dayStop == 'Invalid Date')
       iCount = 0
       $scope.days = []
       while (iCount < 7) and (dayStep <= dayStop)
-        $scope.days.push {date: "#{dayStep.getMonth() + 1}/#{dayStep.getDate()}/#{dayStep.getFullYear()}", timeStart: '08:00am', timeStop: '10:00pm'}
+        timeDate = dayStep.toLocaleDateString()
+        # dayStep.setHours(8,0)
+        # timeStart = dayStep.toTimeString()
+        # dayStep.setHours(22,0)
+        # timeStop  = dayStep.toTimeString()
+        $scope.days.push 
+          date: timeDate
+          timeStart: "08:00"
+          timeStop:  "22:00"
         dayStep.setDate(dayStep.getDate() + 1)
         iCount++
 
-
-
-
-
+  $scope.dateDelete = (index) ->
+    # $scope.$apply = ->
+    if index == ($scope.days.length - 1)
+      $scope.days.pop()
+    else
+      $scope.days.splice(index,1)

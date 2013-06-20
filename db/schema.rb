@@ -11,7 +11,21 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130614154008) do
+ActiveRecord::Schema.define(:version => 20130615030813) do
+
+  create_table "nyc_museum_locations", :force => true do |t|
+    t.string   "part_1"
+    t.string   "name"
+    t.string   "phone"
+    t.string   "url"
+    t.string   "address1"
+    t.string   "address2"
+    t.string   "city"
+    t.string   "zip"
+    t.string   "coordinates"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+  end
 
   create_table "nyc_museums", :force => true do |t|
     t.string   "name"
