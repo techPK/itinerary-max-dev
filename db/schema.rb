@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130615030813) do
+ActiveRecord::Schema.define(:version => 20130621232351) do
 
   create_table "nyc_museum_locations", :force => true do |t|
     t.string   "part_1"
@@ -58,5 +58,21 @@ ActiveRecord::Schema.define(:version => 20130615030813) do
     t.string   "image"
     t.datetime "pubDate"
   end
+
+  create_table "xref_categories", :force => true do |t|
+    t.string   "category"
+    t.integer  "event_id"
+    t.datetime "event_start"
+    t.datetime "event_end"
+    t.integer  "typical_visit_duration"
+    t.string   "geo_coordinates"
+    t.string   "zipcode"
+    t.datetime "created_at",             :null => false
+    t.datetime "updated_at",             :null => false
+  end
+
+  add_index "xref_categories", ["category", "zipcode"], :name => "index_xref_categories_on_category_and_zipcode"
+  add_index "xref_categories", ["category"], :name => "index_xref_categories_on_category"
+  add_index "xref_categories", ["event_id"], :name => "index_xref_categories_on_event_id"
 
 end

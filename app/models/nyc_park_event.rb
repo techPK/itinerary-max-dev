@@ -1,4 +1,5 @@
 class NycParkEvent < ActiveRecord::Base
+  has_many :xref_categories
   attr_accessible :description, :guid, :link, :published_at, :title
   attr_accessible :parkids, :parknames, :startdate, :enddate, :starttime, :image
   attr_accessible :endtime, :contact_phone, :location, :categories, :coordinates, :pubDate

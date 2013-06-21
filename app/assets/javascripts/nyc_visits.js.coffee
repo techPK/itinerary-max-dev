@@ -41,8 +41,8 @@ module.directive 'input', ->
         iCount++
 
   $scope.dateDelete = (index) ->
-    # $scope.$apply = ->
-    if index == ($scope.days.length - 1)
-      $scope.days.pop()
-    else
-      $scope.days.splice(index,1)
+    $scope.$apply = ->
+      if index == ($scope.days.length - 1)
+        $scope.days.pop()
+      else
+        $scope.days.splice(index,1)
