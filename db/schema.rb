@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130621232351) do
+ActiveRecord::Schema.define(:version => 20130625152215) do
 
   create_table "nyc_museum_locations", :force => true do |t|
     t.string   "part_1"
@@ -69,6 +69,7 @@ ActiveRecord::Schema.define(:version => 20130621232351) do
     t.string   "zipcode"
     t.datetime "created_at",             :null => false
     t.datetime "updated_at",             :null => false
+    t.string   "event_info_source"
   end
 
   add_index "xref_categories", ["category", "zipcode"], :name => "index_xref_categories_on_category_and_zipcode"
