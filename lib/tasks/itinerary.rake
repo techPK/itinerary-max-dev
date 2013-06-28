@@ -108,41 +108,41 @@ namespace :events do
 
 	task :seatgeek2 => :environment do
 		require 'net/http'
-		http2 = Net::HTTP.start('api.seatgeek.com')
-		# read all taxonomies into array of id+name+count
-		response = http2.get("/2/taxonomies")
-		response = http2.get("/2/taxonomies") unless response.code == "200"
-		if response.code == "200" 
-			taxonomys = JSON.load(response.body)["taxonomys"]
-		end
-		http2.finish
+		# http2 = Net::HTTP.start('api.seatgeek.com')
+		# # read all taxonomies into array of id+name+count
+		# response = http2.get("/2/taxonomies")
+		# response = http2.get("/2/taxonomies") unless response.code == "200"
+		# if response.code == "200" 
+		# 	taxonomys = JSON.load(response.body)["taxonomys"]
+		# end
+		# http2.finish
 
-		taxonomies_index = {}
-		taxonomys.each do |tax1|
-			taxonomies_index[tax1["id"]] = {
-				category:tax1["name"], 
-				ancestor_id:tax1["parent_id"]}
-		end
+		# taxonomies_index = {}
+		# taxonomys.each do |tax1|
+		# 	taxonomies_index[tax1["id"]] = {
+		# 		category:tax1["name"], 
+		# 		ancestor_id:tax1["parent_id"]}
+		# end
 
-		taxonomies = {}
-		taxonomys.each do |tax2|
-			taxonomies[tax2["name"]] = {
-				categories:[tax2["name"]], 
-				event_count:0}
-			ancestor_id = tax2["parent_id"] if tax2["parent_id"].present?
-			while ancestor_id.present?
-				taxonomies[tax2["name"]][:categories].insert(0,taxonomies_index[ancestor_id][:category])
-				ancestor_id = taxonomies_index[ancestor_id][:ancestor_id]
-			end
-		end
+		# taxonomies = {}
+		# taxonomys.each do |tax2|
+		# 	taxonomies[tax2["name"]] = {
+		# 		categories:[tax2["name"]], 
+		# 		event_count:0}
+		# 	ancestor_id = tax2["parent_id"] if tax2["parent_id"].present?
+		# 	while ancestor_id.present?
+		# 		taxonomies[tax2["name"]][:categories].insert(0,taxonomies_index[ancestor_id][:category])
+		# 		ancestor_id = taxonomies_index[ancestor_id][:ancestor_id]
+		# 	end
+		# end
 
 		# taxonomies.sort_by{|k,v| k}.each {|key,value| puts "#{key}: #{value.inspect}"}
 		
 		# read recent events for NYC and increment taxonomy count for each name.
 		# read all taxonomies into array of id+name+count
 		http2 = Net::HTTP.start('api.seatgeek.com')
-		response = http2.get("/2/events?venue.city=New+York&venue.state=NY&datetime_local.lte=#{(DateTime.now+1).to_s[0,10]}&page=1&per_page=110")
-		response = http2.get("/2/events?venue.city=New+York&venue.state=NY&datetime_local.lte=#{(DateTime.now+1).to_s[0,10]}&page=1&per_page=110") unless response.code == "200"
+		response = http2.get("/2/events?venue.city=New+York&venue.state=NY&datetime_local.lte=#{(DateTime.now+1).to_s[0,10]}&page=1&per_page=15")
+		response = http2.get("/2/events?venue.city=New+York&venue.state=NY&datetime_local.lte=#{(DateTime.now+1).to_s[0,10]}&page=1&per_page=15") unless response.code == "200"
 		if response.code == "200" 
 			meta = JSON.load(response.body)["meta"]
 			events = JSON.load(response.body)["events"]
@@ -150,11 +150,43 @@ namespace :events do
 		http2.finish
 		puts "meta #{meta.count}"
 		puts "events #{events.count}"
+
+		taxonomies = {}
+
 		events.each do |event|
-			event["taxonomies"].each do |taxonomy|
-				# puts "#{taxonomy['name']}  : #{taxonomies[taxonomy['name']]}"
-				taxonomies[taxonomy['name']][:event_count] += 1
+
+			next if (event["date_tbd"] == true) or (event["time_tbd"] == true)
+
+			event_taxonomies = []
+			event["taxonomies"].each do |taxonomy| 
+				event_taxonomies << taxonomy["name"]
 			end
+			taxonomies[event_taxonomies.last] = {} unless taxonomies[event_taxonomies.last]
+			taxonomies[event_taxonomies.last][:categories] = event_taxonomies unless taxonomies[event_taxonomies.last][:categories]
+			# puts "#{taxonomy['name']}  : #{taxonomies[taxonomy['name']]}"
+			if taxonomies[event_taxonomies.last][:event_count].blank?
+				taxonomies[event_taxonomies.last][:event_count] = 1
+			else
+				taxonomies[event_taxonomies.last][:event_count] += 1
+			end
+			taxonomies[event_taxonomies.last][:events] = [] unless taxonomies[event_taxonomies.last][:events]
+			event1 = {}
+			event1[:source] = 'seatgeek'
+			event1[:id] = event["id"]
+			event1[:title] = event["title"]
+			event1[:interest] = 0
+			event1[:appointment] = event["datetime_local"]
+			event1[:duration] = 0
+			event1[:venue] = {
+				id: event['venue']["id"] , 
+				name: event['venue']["name"], 
+				address: event['venue']["address"], 
+				zipcode: event['venue']["postal_code"], 
+				location: event['venue']["location"]
+			}
+			event1[:url] = event['url']
+			event1[:url1] = event['performers'].first["url"]
+			taxonomies[event_taxonomies.last][:events] << event1
 		end
 		puts meta.inspect
 		taxonomies.sort_by{|k,v| k}.each {|key,value| puts "#{key}: #{value.inspect}"}
