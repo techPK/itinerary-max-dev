@@ -189,7 +189,7 @@ namespace :events do
 			taxonomies[event_taxonomies.last][:events] << event1
 		end
 		puts meta.inspect
-		taxonomies.sort_by{|k,v| k}.each {|key,value| puts "#{key}: #{value.inspect}"}
+		taxonomies.sort_by{|k,v| k}.each {|key,value| puts "#{key}: #{value.inspect}"; puts}
 	end
 
 end

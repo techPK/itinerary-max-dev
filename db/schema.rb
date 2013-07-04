@@ -11,52 +11,26 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130625152215) do
+ActiveRecord::Schema.define(:version => 20130703005616) do
 
-  create_table "nyc_museum_locations", :force => true do |t|
-    t.string   "part_1"
-    t.string   "name"
-    t.string   "phone"
-    t.string   "url"
-    t.string   "address1"
-    t.string   "address2"
-    t.string   "city"
-    t.string   "zip"
-    t.string   "coordinates"
-    t.datetime "created_at",  :null => false
-    t.datetime "updated_at",  :null => false
-  end
-
-  create_table "nyc_museums", :force => true do |t|
-    t.string   "name"
-    t.string   "phone"
-    t.string   "address"
-    t.string   "closing"
-    t.string   "rates"
-    t.string   "specials"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
-  end
-
-  create_table "nyc_park_events", :force => true do |t|
+  create_table "events", :force => true do |t|
+    t.string   "source_name"
+    t.string   "source_id"
+    t.datetime "appointed_start"
+    t.datetime "appointed_stop"
+    t.integer  "typical_visit_duration"
+    t.string   "venue_id"
+    t.string   "venue_name"
+    t.string   "venue_address"
+    t.string   "venue_postal_code"
+    t.string   "venue_geolocation"
+    t.string   "taxonomy"
+    t.string   "more_info_url"
+    t.integer  "interest_level"
+    t.datetime "created_at",             :null => false
+    t.datetime "updated_at",             :null => false
     t.string   "title"
-    t.string   "guid"
-    t.string   "link"
-    t.text     "description"
-    t.datetime "created_at",    :null => false
-    t.datetime "updated_at",    :null => false
-    t.string   "parkids"
-    t.string   "parknames"
-    t.date     "startdate"
-    t.date     "enddate"
-    t.time     "starttime"
-    t.time     "endtime"
-    t.string   "contact_phone"
-    t.string   "location"
-    t.string   "categories"
-    t.string   "coordinates"
-    t.string   "image"
-    t.datetime "pubDate"
+    t.string   "more_info_url2"
   end
 
   create_table "xref_categories", :force => true do |t|
