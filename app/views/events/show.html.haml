@@ -1,0 +1,10 @@
+%p#notice= notice
+
+%p
+  %b Index:
+  = @event.title
+%p
+  %b Show:
+  = @event.more_info_url
+
+= link_to 'Back', events_path

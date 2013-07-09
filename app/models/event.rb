@@ -3,6 +3,9 @@ class Event < ActiveRecord::Base
   attr_accessible :Venue_address, :appointed_start, :appointed_stop, :interest_level, :more_info_url,
   	:source_id, :source_name, :taxonomy, :typical_visit_duration, :venue_geolocation, :venue_id, 
   	:venue_name, :venue_postal_code
+	def self.update_all_events(event_count_limit = nil)
+		SeatGeekEvent.load_events(event_count_limit)
+	end
 end
 
 class SeatGeekEvent < Event
@@ -25,10 +28,12 @@ class SeatGeekEvent < Event
 		self.delete_all
 
 		taxonomies = {}
+		acceptable_date_range =  DateTime.now.beginning_of_day..(DateTime.now + 2.days).end_of_day
 
 		seatgeek_events.each do |seatgeek_event|
 			next if (seatgeek_event["date_tbd"] == true) or (seatgeek_event["time_tbd"] == true)
-
+			puts "#{seatgeek_event["datetime_local"]} #{seatgeek_event["datetime_local"].class} | #{acceptable_date_range.cover?(seatgeek_event["datetime_local"])}"
+			next unless acceptable_date_range.cover?DateTime.parse(seatgeek_event["datetime_local"])
 			event = self.new
     		event.title = seatgeek_event["title"]
     		event.source_id = seatgeek_event["id"]

@@ -1,0 +1,43 @@
+%h1 Listing events
+
+= form_tag events_url, :method =>'get' do
+  %ul
+    - @select_categories.sort.each do |category, value|
+      - if @selected_categories.present?
+        %li{style:"list-style-type:none;"}
+          = check_box_tag "selected_categories[#{category}]", value, true
+          = category
+      - else
+        %li{style:"list-style-type:none;"}
+          = check_box_tag "selected_categories[#{category}]", value
+          = category
+  - if @selected_categories.blank?
+    = submit_tag "Select Categories", :name => "categories-submit"
+  - else
+    = submit_tag "Update Categories", :name => "categories-submit"
+-
+- if @events.present?  
+  - puts "****| @events.class = #{@events.inspect} |****"
+  %table
+    %tr
+      %th Interest
+      %th Title
+      %th More Info
+      %th
+      %th
+      %th
+
+    - @events.each do |event|
+      %tr
+        %td
+          = radio_button_tag "selected_interest['#{event.source_id}']", 0, true, {title:"None"}
+          = radio_button_tag "selected_interest['#{event.source_id}']", 1, false, {title:"Low"}
+          = radio_button_tag "selected_interest['#{event.source_id}']", 2, false, {title:"Okay"}
+          = radio_button_tag "selected_interest['#{event.source_id}']", 3, false, {title:"High"}
+          = radio_button_tag "selected_interest['#{event.source_id}']", 4, false, {title:"Must Visit"}
+        %td= event.title
+        %td= link_to "More Info", event.more_info_url
+        %td= link_to 'Show', event
+
+%br
+

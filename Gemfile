@@ -24,8 +24,13 @@ end
 
 gem 'jquery-rails'
 
+gem "haml-rails"
+
 group :development, :test do
   gem 'rspec-rails', '~> 2.0'
+  # gem 'html2haml'
+  # gem "hpricot"
+  # gem "ruby_parser"
 end
 
 # To use ActiveModel has_secure_password
