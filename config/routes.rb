@@ -1,10 +1,10 @@
 ItineraryMax::Application.routes.draw do
   root to: "nyc_visits#index"
 
-  resources :events, only: [:index, :show]
+  resources :events, only: [:index, :show, :create]
   resources :seat_geek_events, only: [:show], controller: :events
   resources :nyc_park_events, only: [:show], controller: :events
-  resources :select_categories, only: [:create]
+
   # get '/events/:id', to: 'events#show', as: 'seat_geek_event'
   # get '/events/:id', to: 'events#show', as: 'nyc_park_event'
 
