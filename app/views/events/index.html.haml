@@ -1,7 +1,86 @@
 %h1 Listing events
 
 = form_tag events_url, :method =>'get' do
+  %h2 Where:
   %ul
+    %li{style:"list-style-type:none;"}
+      = label_tag 'where_NYC', {title:'Anywhere in NYC'} do
+        = radio_button_tag "where", 'NYC', (@where.downcase.include?('nyc') || @where.blank?)
+        [NYC]
+    %li{style:"list-style-type:none;"}
+      = label_tag 'where_Manhattan' do
+        = radio_button_tag "where", 'Manhattan', @where.downcase.include?('manhattan')
+        Manhattan 
+    %li{style:"list-style-type:none;"}
+      = label_tag 'where_Bronx' do
+        = radio_button_tag "where", 'Bronx', @where.downcase.include?('bronx')
+        Bronx
+    %li{style:"list-style-type:none;"}
+      = label_tag 'where_Brooklyn' do
+        = radio_button_tag "where", 'Brooklyn', @where.downcase.include?('brooklyn')
+        Brooklyn
+    %li{style:"list-style-type:none;"}
+      = label_tag 'where_Queens' do
+        = radio_button_tag "where", 'Queens', @where.downcase.include?('queens')
+        Queens
+    %li{style:"list-style-type:none;"}
+      = label_tag 'where_Staten-Island' do
+        = radio_button_tag "where", 'Staten-Island', @where.downcase.include?('staten-island')
+        Staten-Island
+  %h2 When:
+  %ul
+    %li{style:"list-style-type:none;"}
+      = label_tag 'when_day_Any',  {title:"Any of these days: '#{(DateTime.now + 0).to_date}' or '#{(DateTime.now + 1).to_date}' or '#{(DateTime.now + 2).to_date}'"} do
+        = radio_button_tag "when_day", 'Any', (@when_day.downcase.include?('any'.downcase) || @when_day.blank?)
+        [Any Date]
+    %li{style:"list-style-type:none;"}
+      = label_tag 'when_day_Today', {title:"Today: (#{(DateTime.now).to_date})"} do
+        = radio_button_tag "when_day", 'Today', @when_day.downcase.include?('Today'.downcase)
+        Today
+    %li{style:"list-style-type:none;"}
+      = label_tag 'when_day_Tomorrow', {title:"Tomorrow: (#{(DateTime.now + 1).to_date})"} do
+        = radio_button_tag "when_day", 'Tomorrow', @when_day.downcase.include?('Tomorrow'.downcase)
+        Tomorrow
+    %li{style:"list-style-type:none;"}
+      = label_tag 'when_day_Beyond', {title:"Beyond Tomorrow: (#{(DateTime.now + 2).to_date})"} do
+        = radio_button_tag "when_day", 'Beyond', @when_day.downcase.include?('Beyond'.downcase)
+        Beyond Tomorrow
+
+    %li{style:"list-style-type:none;"}
+      = label_tag 'when_time_Any',  {title:"Any Time is okay."} do
+        = radio_button_tag "when_time", 'Any', (@when_time.downcase.include?('Any'.downcase) || @when_time.blank?)
+        [Any Time]
+    %li{style:"list-style-type:none;"}
+      = label_tag 'when_time_Early-Morning', {title:"Early-Morning: (4am to 8am EST)"} do
+        = radio_button_tag "when_time", 'Early-Morning', @when_time.downcase.include?('Early-Morning'.downcase)
+        Early-Morning
+    %li{style:"list-style-type:none;"}
+      = label_tag 'when_time_Morning', {title:"Morning: (8am to 12noon EST)"} do
+        = radio_button_tag "when_time", 'Morning', @when_time.downcase.include?('Morning'.downcase)
+        Morning
+    %li{style:"list-style-type:none;"}
+      = label_tag 'when_time_Afternoon', {title:"Afternoon: (12noon to 4pm EST)"} do
+        = radio_button_tag "when_time", 'Afternoon', @when_time.downcase.include?('Afternoon'.downcase)
+        Afternoon
+    %li{style:"list-style-type:none;"}
+      = label_tag 'when_time_Evening', {title:"Evening: (4pm to 8pm EST)"} do
+        = radio_button_tag "when_time", 'Evening', @when_time.downcase.include?('Evening'.downcase)
+        Evening
+    %li{style:"list-style-type:none;"}
+      = label_tag 'when_time_Night', {title:"Night: (8pm to 12midnight EST)"} do
+        = radio_button_tag "when_time", 'Night', @when_time.downcase.include?('Night'.downcase)
+        Night
+    %li{style:"list-style-type:none;"}
+      = label_tag 'when_time_Late-Night', {title:"Late-Night Tomorrow: (12midnight to 4am EST)"} do
+        = radio_button_tag "when_time", 'Late-Night', @when_time.downcase.include?('Late-Night'.downcase)
+        Late-Night
+  %h2 Admission:
+  %ul
+    %li{style:"list-style-type:none;"}
+  %h2 Categories:
+  %ul
+    %li{style:"list-style-type:none;"}
+    %br
     - @select_categories.sort.each do |category, value|
       - if @selected_categories.present?
         %li{style:"list-style-type:none;"}
@@ -11,6 +90,7 @@
         %li{style:"list-style-type:none;"}
           = check_box_tag "selected_categories[#{category}]", value
           = category
+
   - if @selected_categories.blank?
     = submit_tag "Select Categories", :name => "categories-submit"
   - else
@@ -39,5 +119,5 @@
           %td= link_to "More Info", event.more_info_url
           %td= link_to 'Show', event
 
-%br
+  %br
 
