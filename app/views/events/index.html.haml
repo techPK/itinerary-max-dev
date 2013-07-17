@@ -74,9 +74,40 @@
       = label_tag 'when_time_Late-Night', {title:"Late-Night Tomorrow: (12midnight to 4am EST)"} do
         = radio_button_tag "when_time", 'Late-Night', @when_time.downcase.include?('Late-Night'.downcase)
         Late-Night
-  %h2 Admission:
+  %h2 Admission Categories:
   %ul
     %li{style:"list-style-type:none;"}
+      = label_tag 'admission_Any',  {title:"Events with 'Any' type of Admission pricing."} do
+        = radio_button_tag "admission", 'Any', (@admission.downcase.include?('any'.downcase) || @admission.blank?)
+        [Any Pricing]
+    %li{style:"list-style-type:none;"}
+      = label_tag 'admission_General', {title:"Events with 'General Admission' pricing only"} do
+        = radio_button_tag "admission", 'General', @admission.downcase.include?('General'.downcase)
+        General
+    %li{style:"list-style-type:none;"}
+      = label_tag 'admission_Frugal', {title:"Events with 'under $10' Admission pricing only"} do
+        = radio_button_tag "admission", 'Frugal', @admission.downcase.include?('Frugal'.downcase)
+        Frugal
+    %li{style:"list-style-type:none;"}
+      = label_tag 'admission_Free', {title:"Events with 'Free' Admission only"} do
+        = radio_button_tag "admission", 'Free', @admission.downcase.include?('Free'.downcase)
+        Free
+    %li{style:"list-style-type:none;"}
+      = label_tag 'admission_Senior', {title:"Events with 'Senior' Admission only"} do
+        = radio_button_tag "admission", 'Senior', @admission.downcase.include?('Senior'.downcase)
+        Senior
+    %li{style:"list-style-type:none;"}
+      = label_tag 'admission_Student', {title:"Events with 'Student' Admission only"} do
+        = radio_button_tag "admission", 'Student', @admission.downcase.include?('Student'.downcase)
+        Student
+    %li{style:"list-style-type:none;"}
+      = label_tag 'admission_Tourist-Pass', {title:"Events with 'Tourist-Pass' Admission only"} do
+        = radio_button_tag "admission", 'Tourist-Pass', @admission.downcase.include?('Tourist-Pass'.downcase)
+        Tourist-Pass
+
+
+
+
   %h2 Categories:
   %ul
     %li{style:"list-style-type:none;"}
