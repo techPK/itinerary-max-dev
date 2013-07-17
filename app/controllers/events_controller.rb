@@ -5,18 +5,11 @@ class EventsController < ApplicationController
     Event.update_all_events(5) unless Event.where(:appointed_start => DateTime.now.beginning_of_day..DateTime.now.end_of_day).present?
     
     puts "params='#{params.inspect}'"  # Testing only
-    # Use Session Variable to determine state
-    if session[:search].blank?
-      @where = '' # NYC' # "Manhattan Bronx Brooklyn Queens Staten-Island"
-      @when_day = '' #[any_day] today tomorrow beyond_tomorrow"
-      @when_time = '' # "[any_time] morning afternoon evening night late-night early-morning"
-      @admission = '' # "[any] general frugal free senior student citypass nypass ny_explorer-pass go-select"
-    end
 
-    @where = params[:where] if params[:where].present?
-    @when_day = params[:when_day] if params[:when_day]
-    @when_time = params[:when_time] if params[:when_time]
-    @admission = params[:admission] if params[:admission]
+    @where = (params[:where] || session[:where]) || ''
+    @when_day = (params[:when_day] || session[:when_day]) || ''
+    @when_time = (params[:when_time] || session[:when_time]) || ''
+    @admission = (params[:admission] || session[:admission]) || ''
 
     if @selected_categories = params[:selected_categories]
        @select_categories = @selected_categories.keys
