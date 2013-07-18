@@ -12,11 +12,32 @@ class EventsController < ApplicationController
     @admission = (params[:admission] || session[:admission]) || ''
 
     if @selected_categories = params[:selected_categories]
-       @select_categories = @selected_categories.keys
+      @select_categories = @selected_categories.keys
+      if event_selector = EventSelector.find_by_id(session[:event_selector_id])
+        EventCategory.delete_all(event_selector_id:event_selector.id) 
+        @select_categories.each do |select_category|
+          event_selector.event_categories << EventCategory.new(category:select_category)
+        end
+        event_selector.save
+      end
       @events = Event.where(taxonomy:@selected_categories.keys)
+      case @where.downcase
+      when 'manhattan'
+        @events = @events.manhattan
+      when 'bronx'
+        @events = @events.bronx
+      when 'brooklyn'
+        @events = @events.brooklyn
+      when 'queens'
+        @events = @events.queens
+      when 'staten_island'
+        @events = @events.staten_island
+      end        
     else
       @events = []
-      @selected_categories = nil
+      event_selector = EventSelector.new(times_accessed:0)
+      session[:event_selector_id] = event_selector.id     
+      # @selected_categories = nil
       @select_categories = 
         Event.where(
           :appointed_start => 

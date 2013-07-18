@@ -1,8 +1,20 @@
 class Event < ActiveRecord::Base
-  self.inheritance_column = :source_name
-  attr_accessible :Venue_address, :appointed_start, :appointed_stop, :interest_level, :more_info_url,
-  	:source_id, :source_name, :taxonomy, :typical_visit_duration, :venue_geolocation, :venue_id, 
-  	:venue_name, :venue_postal_code
+	self.inheritance_column = :source_name
+	attr_accessible :Venue_address, :appointed_start, :appointed_stop, :interest_level, :more_info_url,
+		:source_id, :source_name, :taxonomy, :typical_visit_duration, :venue_geolocation, :venue_id, 
+		:venue_name, :venue_postal_code
+
+		scope :manhattan, where("venue_postal_code LIKE '100%' \
+			OR venue_postal_code LIKE '101%' \
+			OR venue_postal_code LIKE '102%' ") # 102 101 
+		scope :bronx, where("venue_postal_code LIKE '104%' ") 
+		scope :brooklyn, where("venue_postal_code LIKE '112%' ") 
+		scope :queens, where("venue_postal_code LIKE '111%' \
+			OR venue_postal_code LIKE '113%' 
+			OR venue_postal_code LIKE '114%' 
+			OR venue_postal_code LIKE '116%' ") # 114 111 116  
+		scope :staten_island, where("venue_postal_code LIKE '103%' ") 
+
 	def self.update_all_events(event_count_limit = nil)
 		SeatGeekEvent.load_events(event_count_limit)
 	end
