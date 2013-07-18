@@ -1,5 +1,5 @@
 ItineraryMax::Application.routes.draw do
-  root to: "nyc_visits#index"
+  root to: "events#index"
 
   resources :events, only: [:index, :show, :create]
   resources :seat_geek_events, only: [:show], controller: :events
