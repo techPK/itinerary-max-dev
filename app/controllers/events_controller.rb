@@ -15,13 +15,20 @@ class EventsController < ApplicationController
       @select_categories = @selected_categories.keys
       if event_selector = EventSelector.find_by_id(session[:event_selector_id])
         EventCategory.delete_all(event_selector_id:event_selector.id) 
-        @select_categories.each do |select_category|
-          event_selector.event_categories << EventCategory.new(category:select_category)
+        @select_categories.each do |select_category|when_dayevent_selector.event_categories << EventCategory.new(category:select_category)
         end
         event_selector.save
       end
       @events = Event.where(taxonomy:@selected_categories.keys)
       case @where.downcase
+      when 'today'
+        @events = @events.today
+      when 'tomorrow'
+        @events = @events.tomorrow
+      when 'beyond_tomorrow'
+      end        
+
+      case @when_day.downcase
       when 'manhattan'
         @events = @events.manhattan
       when 'bronx'

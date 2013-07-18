@@ -15,6 +15,17 @@ class Event < ActiveRecord::Base
 			OR venue_postal_code LIKE '116%' ") # 114 111 116  
 		scope :staten_island, where("venue_postal_code LIKE '103%' ") 
 
+		scope :today, lambda {where("date(appointed_start) = ?", (DateTime.now + 0).to_date)} 
+		scope :tomorrow, lambda {where("date(appointed_start) = ?", (DateTime.now + 1).to_date)} 
+		scope :beyond_tomorrow, lambda {where("date(appointed_start) = ?", (DateTime.now + 2).to_date)} 
+
+		scope :early_morning, lambda {where("")} 
+		scope :morning, lambda {where("")} 
+		scope :afternoon, lambda {where("")} 
+		scope :evening, lambda {where("")} 
+		scope :night, lambda {where("")} 
+		scope :late_night, lambda {where("")} 
+
 	def self.update_all_events(event_count_limit = nil)
 		SeatGeekEvent.load_events(event_count_limit)
 	end
@@ -24,8 +35,8 @@ class SeatGeekEvent < Event
 	def self.load_events(event_count_limit = nil)
 		require 'net/http'
 		http2 = Net::HTTP.start('api.seatgeek.com')
-		response = http2.get("/2/events?venue.city=New+York&venue.state=NY&datetime_local.lte=#{(DateTime.now+3).to_s[0,10]}&page=1&per_page=15")
-		response = http2.get("/2/events?venue.city=New+York&venue.state=NY&datetime_local.lte=#{(DateTime.now+3).to_s[0,10]}&page=1&per_page=15") unless response.code == "200"
+		response = http2.get("/2/events?venue.city=New+York&venue.state=NY&datetime_local.lte=#{(DateTime.now+3).to_s[0,10]}&page=1&per_page=35")
+		response = http2.get("/2/events?venue.city=New+York&venue.state=NY&datetime_local.lte=#{(DateTime.now+3).to_s[0,10]}&page=1&per_page=35") unless response.code == "200"
 		if response.code == "200" 
 			meta = JSON.load(response.body)["meta"]
 			seatgeek_events = JSON.load(response.body)["events"]
