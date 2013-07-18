@@ -19,12 +19,12 @@ class Event < ActiveRecord::Base
 		scope :tomorrow, lambda {where("date(appointed_start) = ?", (DateTime.now + 1).to_date)} 
 		scope :beyond_tomorrow, lambda {where("date(appointed_start) = ?", (DateTime.now + 2).to_date)} 
 
-		scope :early_morning, lambda {where("")} 
-		scope :morning, lambda {where("")} 
-		scope :afternoon, lambda {where("")} 
-		scope :evening, lambda {where("")} 
-		scope :night, lambda {where("")} 
-		scope :late_night, lambda {where("")} 
+		scope :early_morning, where("time(appointed_start) between time(?) and time(?)",  '4:00' ,'7:59') 
+		scope :morning, where("time(appointed_start) between time(?) and time(?)",  '8:00' ,'11:59')
+		scope :afternoon, where("time(appointed_start) between time(?) and time(?)",  '12:00' ,'15:59')
+		scope :evening, where("time(appointed_start) between time(?) and time(?)",  '16:00' ,'19:59')
+		scope :night, where("time(appointed_start) between time(?) and time(?)",  '20:00' ,'23:59')
+		scope :late_night, where("time(appointed_start) between time(?) and time(?)",  '00:00' ,'3:59')
 
 	def self.update_all_events(event_count_limit = nil)
 		SeatGeekEvent.load_events(event_count_limit)

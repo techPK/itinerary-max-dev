@@ -20,15 +20,32 @@ class EventsController < ApplicationController
         event_selector.save
       end
       @events = Event.where(taxonomy:@selected_categories.keys)
-      case @where.downcase
+
+      case @when_day.downcase
       when 'today'
         @events = @events.today
       when 'tomorrow'
         @events = @events.tomorrow
       when 'beyond_tomorrow'
+        @events = @events.beyond_tomorrow
       end        
 
-      case @when_day.downcase
+      case @when_time.downcase
+      when 'early_morning'
+        @events = @events.early_morning
+      when 'morning'
+        @events = @events.morning
+      when 'afternoon'
+        @events = @events.afternoon
+      when 'evening'
+        @events = @events.evening
+      when 'night'
+        @events = @events.night
+      when 'late_night'
+        @events = @events.late_night
+      end        
+
+      case @where.downcase
       when 'manhattan'
         @events = @events.manhattan
       when 'bronx'

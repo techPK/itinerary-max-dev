@@ -51,8 +51,8 @@
         = radio_button_tag "when_time", 'Any', (@when_time.downcase.include?('Any'.downcase) || @when_time.blank?)
         [Any Time]
     %li{style:"list-style-type:none;"}
-      = label_tag 'when_time_Early-Morning', {title:"Early-Morning: (4am to 8am EST)"} do
-        = radio_button_tag "when_time", 'Early-Morning', @when_time.downcase.include?('Early-Morning'.downcase)
+      = label_tag 'when_time_Early_Morning', {title:"Early-Morning: (4am to 8am EST)"} do
+        = radio_button_tag "when_time", 'Early_Morning', @when_time.downcase.include?('Early-Morning'.downcase)
         Early-Morning
     %li{style:"list-style-type:none;"}
       = label_tag 'when_time_Morning', {title:"Morning: (8am to 12noon EST)"} do
@@ -71,8 +71,8 @@
         = radio_button_tag "when_time", 'Night', @when_time.downcase.include?('Night'.downcase)
         Night
     %li{style:"list-style-type:none;"}
-      = label_tag 'when_time_Late-Night', {title:"Late-Night Tomorrow: (12midnight to 4am EST)"} do
-        = radio_button_tag "when_time", 'Late-Night', @when_time.downcase.include?('Late-Night'.downcase)
+      = label_tag 'when_time_Late_Night', {title:"Late-Night Tomorrow: (12midnight to 4am EST)"} do
+        = radio_button_tag "when_time", 'Late_Night', @when_time.downcase.include?('Late-Night'.downcase)
         Late-Night
   %h2 Admission Categories:
   %ul
@@ -101,8 +101,8 @@
         = radio_button_tag "admission", 'Student', @admission.downcase.include?('Student'.downcase)
         Student
     %li{style:"list-style-type:none;"}
-      = label_tag 'admission_Tourist-Pass', {title:"Events with 'Tourist-Pass' Admission only"} do
-        = radio_button_tag "admission", 'Tourist-Pass', @admission.downcase.include?('Tourist-Pass'.downcase)
+      = label_tag 'admission_Tourist_Pass', {title:"Events with 'Tourist-Pass' Admission only"} do
+        = radio_button_tag "admission", 'Tourist_Pass', @admission.downcase.include?('Tourist-Pass'.downcase)
         Tourist-Pass
 
 
