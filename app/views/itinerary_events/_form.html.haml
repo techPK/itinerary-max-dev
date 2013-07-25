@@ -1,0 +1,17 @@
+= form_for @itinerary_event, remote:true do |f|
+  - if @itinerary_event.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@itinerary_event.errors.count, "error")} prohibited this itinerary_event from being saved:"
+      %ul
+        - @itinerary_event.errors.full_messages.each do |msg|
+          %li= msg
+  = f.label :event_id
+  = f.number_field :event_id
+ 
+  = f.label :event_selector_id
+  = f.number_field :event_selector_id
+  = f.label :interest_level
+  = f.number_field :interest_level
+  %br
+  .actions
+    = f.submit 'Save'

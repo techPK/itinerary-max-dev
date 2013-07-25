@@ -80,6 +80,33 @@ class EventsController < ApplicationController
             DateTime.now.beginning_of_day..(DateTime.now + 2.days).end_of_day).uniq.pluck(:taxonomy)
     end
 
+    if params[:category_events_interest]
+      # event_selector.itinerary_events.delete_all
+      params[:category_events_interest].each do |selected_event_id, selected_event_interest_level|
+        next if selected_event_interest_level.to_i < 1
+        i_event = ItineraryEvent.where(event_selector_id:session[:event_selector_id],event_id:selected_event_id).first_or_create do |itinerary_event|
+          itinerary_event.interest_level = selected_event_interest_level
+        end
+      end
+    end
+
+    if params[:itinerary_events_interest]
+      params[:itinerary_events_interest].each do |itinerary_event_id, itinerary_event_interest|
+        if i_event = ItineraryEvent.where(event_selector_id:session[:event_selector_id],event_id:itinerary_event_id).first
+          if itinerary_event_interest != i_event.event_id
+            if itinerary_event_interest.to_i > 0
+              i_event.update_attribute(:interest_level, itinerary_event_interest)
+            else
+              i_event.delete
+            end
+          end
+        end
+      end
+    end
+
+
+    @itinerary_events = EventSelector.find_by_id(session[:event_selector_id]).itinerary_events
+
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @events }

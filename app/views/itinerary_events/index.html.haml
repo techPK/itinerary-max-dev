@@ -1,0 +1,22 @@
+%h1 Listing itinerary_events
+
+%table
+  %tr
+    %th='id'
+    %th='event_id'
+    %th='event_selector_id'
+    %th='interest_level'
+
+  - @itinerary_events.each do |itinerary_event|
+    %tr
+      %td=itinerary_event.id
+      %td=itinerary_event.event_id
+      %td=itinerary_event.event_selector_id
+      %td=itinerary_event.interest_level
+      %td= link_to 'Show', itinerary_event
+      %td= link_to 'Edit', edit_itinerary_event_path(itinerary_event)
+      %td= link_to 'Destroy', itinerary_event, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Itinerary event', new_itinerary_event_path

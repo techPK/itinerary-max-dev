@@ -128,27 +128,58 @@
     = submit_tag "Update Categories", :name => "categories-submit"
   -
   - if @events.present?  
-    - puts "****| @events.class = #{@events.inspect} |****"
-    %table
-      %tr
-        %th Interest
-        %th Title
-        %th More Info
-        %th
-        %th
-        %th
-
-      - @events.each do |event|
+    %h2 Category Events:
+    %div 
+      %table
         %tr
-          %td
-            = radio_button_tag "selected_interest[#{event.id}]", 0, false, {title:"None"}
-            = radio_button_tag "selected_interest[#{event.id}]", 1, false, {title:"Low"}
-            = radio_button_tag "selected_interest[#{event.id}]", 2, false, {title:"Medium"}
-            = radio_button_tag "selected_interest[#{event.id}]", 3, false, {title:"High"}
-            = radio_button_tag "selected_interest[#{event.id}]", 4, false, {title:"Must Visit"}
-          %td= event.title
-          %td= link_to "More Info", event.more_info_url
-          %td= link_to 'Show', event
+          %th Interest
+          %th Title
+          %th More Info
+          %th
+          %th
+          %th
 
+        - @events.each do |event|
+          %tr
+            -if (@itinerary_events.any? {|e| e[:event_id] == event.id})
+              %td{style:"background-color:yellow", title:"Selected as an Itinerary Event"}
+                = radio_button_tag "category_events_interest[#{event.id}]", 0, false, {disabled:"on"}
+                = radio_button_tag "category_events_interest[#{event.id}]", 1, false, {disabled:"on"}
+                = radio_button_tag "category_events_interest[#{event.id}]", 2, false, {disabled:"on"}
+                = radio_button_tag "category_events_interest[#{event.id}]", 3, false, {disabled:"on"}
+                = radio_button_tag "category_events_interest[#{event.id}]", 4, false, {disabled:"on"}
+            -else
+              %td
+                = radio_button_tag "category_events_interest[#{event.id}]", 0, false, {title:"None"}
+                = radio_button_tag "category_events_interest[#{event.id}]", 1, false, {title:"Low"}
+                = radio_button_tag "category_events_interest[#{event.id}]", 2, false, {title:"Medium"}
+                = radio_button_tag "category_events_interest[#{event.id}]", 3, false, {title:"High"}
+                = radio_button_tag "category_events_interest[#{event.id}]", 4, false, {title:"Must Visit"}            
+            %td= event.title
+            %td= link_to "More Info", event.more_info_url
+            %td= link_to 'Show', event
+  - if @itinerary_events.present?
+    %h2 Itinerary Events:
+    %div 
+      %table
+        %tr
+          %th Interest
+          %th Title
+          %th More Info
+          %th
+          %th
+          %th
+
+        - @itinerary_events.each do |itinerary_event|
+          %tr
+            %td
+              = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 0, (itinerary_event.interest_level == 0), {title:"None"}
+              = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 1, (itinerary_event.interest_level == 1), {title:"Low"}
+              = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 2, (itinerary_event.interest_level == 2), {title:"Medium"}
+              = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 3, (itinerary_event.interest_level == 3), {title:"High"}
+              = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 4, (itinerary_event.interest_level == 4), {title:"Must Visit"}
+            %td= itinerary_event.event.title
+            %td= link_to "More Info", itinerary_event.event.more_info_url
+            %td= link_to 'Show', itinerary_event.event
   %br
 

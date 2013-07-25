@@ -1,4 +1,6 @@
 class Event < ActiveRecord::Base
+	has_many :itinerary_events, dependent: :destroy
+	has_many :event_selectors , through: :itinerary_events, dependent: :destroy
 	self.inheritance_column = :source_name
 	attr_accessible :Venue_address, :appointed_start, :appointed_stop, :interest_level, :more_info_url,
 		:source_id, :source_name, :taxonomy, :typical_visit_duration, :venue_geolocation, :venue_id, 
