@@ -136,11 +136,12 @@
           %th Title
           %th More Info
           %th
-          %th
-          %th
-
+          %th Date&amp;Time
+          %th Duration
+          %th Zip-Code
         - @events.each do |event|
           %tr
+            -
             -if (@itinerary_events.any? {|e| e[:event_id] == event.id})
               %td{style:"background-color:yellow", title:"Selected as an Itinerary Event"}
                 = radio_button_tag "category_events_interest[#{event.id}]", 0, false, {disabled:"on"}
@@ -148,16 +149,23 @@
                 = radio_button_tag "category_events_interest[#{event.id}]", 2, false, {disabled:"on"}
                 = radio_button_tag "category_events_interest[#{event.id}]", 3, false, {disabled:"on"}
                 = radio_button_tag "category_events_interest[#{event.id}]", 4, false, {disabled:"on"}
+                - conflict_indicator = "background-color:yellow"
             -else
               %td
                 = radio_button_tag "category_events_interest[#{event.id}]", 0, false, {title:"None"}
                 = radio_button_tag "category_events_interest[#{event.id}]", 1, false, {title:"Low"}
                 = radio_button_tag "category_events_interest[#{event.id}]", 2, false, {title:"Medium"}
                 = radio_button_tag "category_events_interest[#{event.id}]", 3, false, {title:"High"}
-                = radio_button_tag "category_events_interest[#{event.id}]", 4, false, {title:"Must Visit"}            
-            %td= event.title
-            %td= link_to "More Info", event.more_info_url
+                = radio_button_tag "category_events_interest[#{event.id}]", 4, false, {title:"Must Visit"}
+                - conflict_indicator = ""
+            %td{title:event.title, style:"#{conflict_indicator}"}= (event.title.strip.size < 38 ? event.title.strip.ljust(40) : event.title.strip.truncate(37))
+            %td
+              %a{href:event.more_info_url, target:"_blank"} More Info 
             %td= link_to 'Show', event
+            %td= event.appointed_start.to_datetime.to_formatted_s(:short)  || "[n/a]"
+            %td= event.typical_visit_duration || "[n/a]"
+            %td= event.venue_postal_code || "[n/a]"  
+
   - if @itinerary_events.present?
     %h2 Itinerary Events:
     %div 
@@ -167,19 +175,29 @@
           %th Title
           %th More Info
           %th
-          %th
-          %th
-
+          %th Date&amp;Time
+          %th Duration
+          %th Zip-Code
+        - prior_datetime = nil
+        - prior_interest_level = nil
         - @itinerary_events.each do |itinerary_event|
           %tr
+            - if prior_datetime != itinerary_event.event.appointed_start
+              - conflict_indicator = "background-color:lightgreen"
+              - prior_datetime = itinerary_event.event.appointed_start
+            - else
+              - conflict_indicator = "background-color:tomato"
             %td
               = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 0, (itinerary_event.interest_level == 0), {title:"None"}
               = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 1, (itinerary_event.interest_level == 1), {title:"Low"}
               = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 2, (itinerary_event.interest_level == 2), {title:"Medium"}
               = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 3, (itinerary_event.interest_level == 3), {title:"High"}
               = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 4, (itinerary_event.interest_level == 4), {title:"Must Visit"}
-            %td= itinerary_event.event.title
-            %td= link_to "More Info", itinerary_event.event.more_info_url
+            %td{title:itinerary_event.event.title, style:"#{conflict_indicator}"}= (itinerary_event.event.title.strip.size < 38 ? itinerary_event.event.title.strip.ljust(40) : itinerary_event.event.title.strip.truncate(37))
+            %td
+              %a{href:itinerary_event.event.more_info_url, target:"_blank"} More Info 
             %td= link_to 'Show', itinerary_event.event
+            %td= itinerary_event.event.appointed_start.to_datetime.to_formatted_s(:short)  || "[n/a]"
+            %td= itinerary_event.event.typical_visit_duration || "[n/a]"
+            %td= itinerary_event.event.venue_postal_code || "[n/a]"
   %br
-

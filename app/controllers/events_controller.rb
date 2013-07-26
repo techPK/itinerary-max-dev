@@ -105,7 +105,19 @@ class EventsController < ApplicationController
     end
 
 
-    @itinerary_events = EventSelector.find_by_id(session[:event_selector_id]).itinerary_events
+    # @itinerary_events = EventSelector.find_by_id(session[:event_selector_id]).try(:itinerary_events)
+
+    if (@itinerary_events = ItineraryEvent.where(event_selector_id:session[:event_selector_id]))
+      @itinerary_events = @itinerary_events.joins(:event).order( \
+        "events.appointed_start ASC, interest_level DESC, events.title ASC") if @itinerary_events.count > 0
+    end
+
+    # @itinerary_events = ItineraryEvent.where(event_selector_id:session[:event_selector_id])
+    # ItineraryEvent.where(event_selector_id:4).joins(:event).order("events.appointed_start, interest_level DESC") 
+    #  ItineraryEvent.where(event_selector_id:4).joins(:event).order("events.appointed_start ASC, interest_level DESC,>
+    # <_selector_id:4).joins(:event).order("events.appointed_start ASC, interest_level DESC, events.title ASC").each {|ie5| puts "====>
+    #  {|ie5| puts "====> #{ie5.interest_level} #{ie5.event.appointed_start}:#{ie5.event.title.truncate(20)}"}
+
 
     respond_to do |format|
       format.html # index.html.erb
