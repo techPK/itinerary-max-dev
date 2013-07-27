@@ -141,7 +141,6 @@
           %th Zip-Code
         - @events.each do |event|
           %tr
-            -
             -if (@itinerary_events.any? {|e| e[:event_id] == event.id})
               %td{style:"background-color:yellow", title:"Selected as an Itinerary Event"}
                 = radio_button_tag "category_events_interest[#{event.id}]", 0, false, {disabled:"on"}
@@ -188,7 +187,7 @@
             - else
               - conflict_indicator = "background-color:tomato"
             %td
-              = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 0, (itinerary_event.interest_level == 0), {title:"None"}
+              = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 0, (itinerary_event.interest_level == 0), {title:"Delete"}
               = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 1, (itinerary_event.interest_level == 1), {title:"Low"}
               = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 2, (itinerary_event.interest_level == 2), {title:"Medium"}
               = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 3, (itinerary_event.interest_level == 3), {title:"High"}
