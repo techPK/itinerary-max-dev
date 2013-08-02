@@ -1,219 +1,253 @@
-%h1 Listing events
-
 = form_tag events_url, :method =>'get' do
-  .accordion#selectors
-    .accordion-group
-      .accordion-heading
-        %a.accordion-toggle(data-toggle='collapse' data-parent='selectors' href='#where')
-          Where
-      #where.accordion-body.collapse.in
-        .accordion-inner
-          %ul
-            %li{style:"list-style-type:none;"}
-              = label_tag 'where_NYC', {title:'Anywhere in NYC'} do
-                = radio_button_tag "where", 'NYC', (@where.downcase.include?('nyc') || @where.blank?)
-                [NYC]
-            %li{style:"list-style-type:none;"}
-              = label_tag 'where_Manhattan' do
-                = radio_button_tag "where", 'Manhattan', @where.downcase.include?('manhattan')
-                Manhattan 
-            %li{style:"list-style-type:none;"}
-              = label_tag 'where_Bronx' do
-                = radio_button_tag "where", 'Bronx', @where.downcase.include?('bronx')
-                Bronx
-            %li{style:"list-style-type:none;"}
-              = label_tag 'where_Brooklyn' do
-                = radio_button_tag "where", 'Brooklyn', @where.downcase.include?('brooklyn')
-                Brooklyn
-            %li{style:"list-style-type:none;"}
-              = label_tag 'where_Queens' do
-                = radio_button_tag "where", 'Queens', @where.downcase.include?('queens')
-                Queens
-            %li{style:"list-style-type:none;"}
-              = label_tag 'where_Staten-Island' do
-                = radio_button_tag "where", 'Staten-Island', @where.downcase.include?('staten-island')
-                Staten-Island
-    .accordion-group
-      .accordion-heading
-        %a.accordion-toggle(data-toggle='collapse' data-parent='selectors' href='#when')
-          When
-      #when.accordion-body.collapse
-        .accordion-inner  
-          %ul
-            %li{style:"list-style-type:none;"}
-              = label_tag 'when_day_Any',  {title:"Any of these days: '#{(DateTime.now + 0).to_date}' or '#{(DateTime.now + 1).to_date}' or '#{(DateTime.now + 2).to_date}'"} do
-                = radio_button_tag "when_day", 'Any', (@when_day.downcase.include?('any'.downcase) || @when_day.blank?)
-                [Any Date]
-            %li{style:"list-style-type:none;"}
-              = label_tag 'when_day_Today', {title:"Today: (#{(DateTime.now).to_date})"} do
-                = radio_button_tag "when_day", 'Today', @when_day.downcase.include?('Today'.downcase)
-                Today
-            %li{style:"list-style-type:none;"}
-              = label_tag 'when_day_Tomorrow', {title:"Tomorrow: (#{(DateTime.now + 1).to_date})"} do
-                = radio_button_tag "when_day", 'Tomorrow', @when_day.downcase.include?('Tomorrow'.downcase)
-                Tomorrow
-            %li{style:"list-style-type:none;"}
-              = label_tag 'when_day_Beyond', {title:"Beyond Tomorrow: (#{(DateTime.now + 2).to_date})"} do
-                = radio_button_tag "when_day", 'Beyond', @when_day.downcase.include?('Beyond'.downcase)
-                Beyond Tomorrow
+  .tabbable
+    %ul.nav.nav-tabs
+      - tab_active1 = ""
+      - tab_active1 = "active" if @events.blank? &&  @itinerary_events.blank?      
+      %li{class:"#{tab_active1}"}
 
-            %li{style:"list-style-type:none;"}
-              = label_tag 'when_time_Any',  {title:"Any Time is okay."} do
-                = radio_button_tag "when_time", 'Any', (@when_time.downcase.include?('Any'.downcase) || @when_time.blank?)
-                [Any Time]
-            %li{style:"list-style-type:none;"}
-              = label_tag 'when_time_Early_Morning', {title:"Early-Morning: (4am to 8am EST)"} do
-                = radio_button_tag "when_time", 'Early_Morning', @when_time.downcase.include?('Early-Morning'.downcase)
-                Early-Morning
-            %li{style:"list-style-type:none;"}
-              = label_tag 'when_time_Morning', {title:"Morning: (8am to 12noon EST)"} do
-                = radio_button_tag "when_time", 'Morning', @when_time.downcase.include?('Morning'.downcase)
-                Morning
-            %li{style:"list-style-type:none;"}
-              = label_tag 'when_time_Afternoon', {title:"Afternoon: (12noon to 4pm EST)"} do
-                = radio_button_tag "when_time", 'Afternoon', @when_time.downcase.include?('Afternoon'.downcase)
-                Afternoon
-            %li{style:"list-style-type:none;"}
-              = label_tag 'when_time_Evening', {title:"Evening: (4pm to 8pm EST)"} do
-                = radio_button_tag "when_time", 'Evening', @when_time.downcase.include?('Evening'.downcase)
-                Evening
-            %li{style:"list-style-type:none;"}
-              = label_tag 'when_time_Night', {title:"Night: (8pm to 12midnight EST)"} do
-                = radio_button_tag "when_time", 'Night', @when_time.downcase.include?('Night'.downcase)
-                Night
-            %li{style:"list-style-type:none;"}
-              = label_tag 'when_time_Late_Night', {title:"Late-Night Tomorrow: (12midnight to 4am EST)"} do
-                = radio_button_tag "when_time", 'Late_Night', @when_time.downcase.include?('Late-Night'.downcase)
-                Late-Night
-    .accordion-group
-      .accordion-heading
-        %a.accordion-toggle(data-toggle='collapse' data-parent='selectors' href='#price')
-          Price
-      #price.accordion-body.collapse
-        .accordion-inner
-          %ul
-            %li{style:"list-style-type:none;"}
-              = label_tag 'admission_Any',  {title:"Events with 'Any' type of Admission pricing."} do
-                = radio_button_tag "admission", 'Any', (@admission.downcase.include?('any'.downcase) || @admission.blank?)
-                [Any Pricing]
-            %li{style:"list-style-type:none;"}
-              = label_tag 'admission_General', {title:"Events with 'General Admission' pricing only"} do
-                = radio_button_tag "admission", 'General', @admission.downcase.include?('General'.downcase)
-                General
-            %li{style:"list-style-type:none;"}
-              = label_tag 'admission_Frugal', {title:"Events with 'under $10' Admission pricing only"} do
-                = radio_button_tag "admission", 'Frugal', @admission.downcase.include?('Frugal'.downcase)
-                Frugal
-            %li{style:"list-style-type:none;"}
-              = label_tag 'admission_Free', {title:"Events with 'Free' Admission only"} do
-                = radio_button_tag "admission", 'Free', @admission.downcase.include?('Free'.downcase)
-                Free
-            %li{style:"list-style-type:none;"}
-              = label_tag 'admission_Senior', {title:"Events with 'Senior' Admission only"} do
-                = radio_button_tag "admission", 'Senior', @admission.downcase.include?('Senior'.downcase)
-                Senior
-            %li{style:"list-style-type:none;"}
-              = label_tag 'admission_Student', {title:"Events with 'Student' Admission only"} do
-                = radio_button_tag "admission", 'Student', @admission.downcase.include?('Student'.downcase)
-                Student
-            %li{style:"list-style-type:none;"}
-              = label_tag 'admission_Tourist_Pass', {title:"Events with 'Tourist-Pass' Admission only"} do
-                = radio_button_tag "admission", 'Tourist_Pass', @admission.downcase.include?('Tourist-Pass'.downcase)
-                Tourist-Pass
-    .accordion-group
-      .accordion-heading
-        %a.accordion-toggle(data-toggle='collapse' data-parent='selectors' href='#category')
-          Category
-      #category.accordion-body.collapse
-        .accordion-inner
-          %ul
-            %li{style:"list-style-type:none;"}
-            %br
-            - @select_categories.sort.each do |category, value|
-              - if @selected_categories.present?
-                %li{style:"list-style-type:none;"}
-                  = check_box_tag "selected_categories[#{category}]", value, true
-                  = category
-              - else
-                %li{style:"list-style-type:none;"}
-                  = check_box_tag "selected_categories[#{category}]", value
-                  = category
+        %a(href="#tab1" data-toggle="tab")
+          Event Selectors
+      
+      - if @events.present?
+        - tab_active2 = ""
+        - tab_active2 = "active" if @itinerary_events.blank?
+        %li{class:"#{tab_active2}"}
+          %a(href="#tab2" data-toggle="tab")
+            Category Events
+       
+      - if @itinerary_events.present?  
+        - tab_active3 = ""
+        - tab_active3 = "active"
+        %li{class:"#{tab_active3}"}
+          %a(href="#tab3" data-toggle="tab")
+            Itinerary Events
+    .tab-content
+      - tab_active1 += ' in' if tab_active1.present?
+      .tab-pane#tab1{class:"#{tab_active1}"}
+        .accordion#selectors
+          .accordion-group
+            .accordion-heading
+              %h4
+                - emphasis_color = (@where.downcase.include?('nyc') || @where.blank?) ? 'text-primary' : 'text-warning'
+                %a.accordion-toggle(data-toggle='collapse' data-parent='#selectors' href='#where' class="#{emphasis_color}")
+                  Where
+            #where.accordion-body.collapse
+              .accordion-inner
+                %ul
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'where_NYC', {title:'Anywhere in NYC'} do
+                      = radio_button_tag "where", 'NYC', (@where.downcase.include?('nyc') || @where.blank?)
+                      [NYC]
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'where_Manhattan' do
+                      = radio_button_tag "where", 'Manhattan', @where.downcase.include?('manhattan')
+                      Manhattan 
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'where_Bronx' do
+                      = radio_button_tag "where", 'Bronx', @where.downcase.include?('bronx')
+                      Bronx
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'where_Brooklyn' do
+                      = radio_button_tag "where", 'Brooklyn', @where.downcase.include?('brooklyn')
+                      Brooklyn
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'where_Queens' do
+                      = radio_button_tag "where", 'Queens', @where.downcase.include?('queens')
+                      Queens
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'where_Staten-Island' do
+                      = radio_button_tag "where", 'Staten-Island', @where.downcase.include?('staten-island')
+                      Staten-Island
+          .accordion-group
+            .accordion-heading
+              %h4
+                - if (@when_day.downcase.include?('any'.downcase) || @when_day.blank?)
+                  - if (@when_time.downcase.include?('Any'.downcase) || @when_time.blank?)
+                    - emphasis_color = 'text-primary'
+                  - else
+                    - emphasis_color = 'text-warning'
+                - else
+                  - emphasis_color = 'text-warning' 
+                %a.accordion-toggle(data-toggle='collapse' data-parent='#selectors' href='#when' class="#{emphasis_color}")
+                  When
+            #when.accordion-body.collapse
+              .accordion-inner  
+                %ul
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'when_day_Any',  {title:"Any of these days: '#{(DateTime.now + 0).to_date}' or '#{(DateTime.now + 1).to_date}' or '#{(DateTime.now + 2).to_date}'"} do
+                      = radio_button_tag "when_day", 'Any', (@when_day.downcase.include?('any'.downcase) || @when_day.blank?)
+                      [Any Date]
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'when_day_Today', {title:"Today: (#{(DateTime.now).to_date})"} do
+                      = radio_button_tag "when_day", 'Today', @when_day.downcase.include?('Today'.downcase)
+                      Today
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'when_day_Tomorrow', {title:"Tomorrow: (#{(DateTime.now + 1).to_date})"} do
+                      = radio_button_tag "when_day", 'Tomorrow', @when_day.downcase.include?('Tomorrow'.downcase)
+                      Tomorrow
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'when_day_Beyond', {title:"Beyond Tomorrow: (#{(DateTime.now + 2).to_date})"} do
+                      = radio_button_tag "when_day", 'Beyond', @when_day.downcase.include?('Beyond'.downcase)
+                      Beyond Tomorrow
 
-  - if @selected_categories.blank?
-    = submit_tag "Select Categories", :name => "categories-submit"
-  - else
-    = submit_tag "Update Categories", :name => "categories-submit"
-  -
-  - if @events.present?  
-    %h2 Category Events:
-    %div 
-      %table.table.table-striped.table-hover.table-condensed
-        %tr
-          %th Interest
-          %th Title
-          %th More Info
-          %th
-          %th Date&amp;Time
-          %th Duration
-          %th Zip-Code
-        - @events.each do |event|
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'when_time_Any',  {title:"Any Time is okay."} do
+                      = radio_button_tag "when_time", 'Any', (@when_time.downcase.include?('Any'.downcase) || @when_time.blank?)
+                      [Any Time]
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'when_time_Early_Morning', {title:"Early-Morning: (4am to 8am EST)"} do
+                      = radio_button_tag "when_time", 'Early_Morning', @when_time.downcase.include?('Early-Morning'.downcase)
+                      Early-Morning
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'when_time_Morning', {title:"Morning: (8am to 12noon EST)"} do
+                      = radio_button_tag "when_time", 'Morning', @when_time.downcase.include?('Morning'.downcase)
+                      Morning
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'when_time_Afternoon', {title:"Afternoon: (12noon to 4pm EST)"} do
+                      = radio_button_tag "when_time", 'Afternoon', @when_time.downcase.include?('Afternoon'.downcase)
+                      Afternoon
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'when_time_Evening', {title:"Evening: (4pm to 8pm EST)"} do
+                      = radio_button_tag "when_time", 'Evening', @when_time.downcase.include?('Evening'.downcase)
+                      Evening
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'when_time_Night', {title:"Night: (8pm to 12midnight EST)"} do
+                      = radio_button_tag "when_time", 'Night', @when_time.downcase.include?('Night'.downcase)
+                      Night
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'when_time_Late_Night', {title:"Late-Night Tomorrow: (12midnight to 4am EST)"} do
+                      = radio_button_tag "when_time", 'Late_Night', @when_time.downcase.include?('Late-Night'.downcase)
+                      Late-Night
+          .accordion-group
+            .accordion-heading
+              %h4
+                - emphasis_color = (@admission.downcase.include?('any'.downcase) || @admission.blank?) ? 'text-primary' : 'text-warning'
+                %a.accordion-toggle(data-toggle='collapse' data-parent='#selectors' href='#price' class="#{emphasis_color}")
+                  Price
+            #price.accordion-body.collapse
+              .accordion-inner
+                %ul
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'admission_Any',  {title:"Events with 'Any' type of Admission pricing."} do
+                      = radio_button_tag "admission", 'Any', (@admission.downcase.include?('any'.downcase) || @admission.blank?)
+                      [Any Pricing]
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'admission_General', {title:"Events with 'General Admission' pricing only"} do
+                      = radio_button_tag "admission", 'General', @admission.downcase.include?('General'.downcase)
+                      General
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'admission_Frugal', {title:"Events with 'under $10' Admission pricing only"} do
+                      = radio_button_tag "admission", 'Frugal', @admission.downcase.include?('Frugal'.downcase)
+                      Frugal
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'admission_Free', {title:"Events with 'Free' Admission only"} do
+                      = radio_button_tag "admission", 'Free', @admission.downcase.include?('Free'.downcase)
+                      Free
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'admission_Senior', {title:"Events with 'Senior' Admission only"} do
+                      = radio_button_tag "admission", 'Senior', @admission.downcase.include?('Senior'.downcase)
+                      Senior
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'admission_Student', {title:"Events with 'Student' Admission only"} do
+                      = radio_button_tag "admission", 'Student', @admission.downcase.include?('Student'.downcase)
+                      Student
+                  %li{style:"list-style-type:none;"}
+                    = label_tag 'admission_Tourist_Pass', {title:"Events with 'Tourist-Pass' Admission only"} do
+                      = radio_button_tag "admission", 'Tourist_Pass', @admission.downcase.include?('Tourist-Pass'.downcase)
+                      Tourist-Pass
+          .accordion-group
+            .accordion-heading
+              %h4
+                - emphasis_color = (@selected_categories.blank?) ? 'text-error' : 'text-warning'
+                %a.accordion-toggle(data-toggle='collapse' data-parent='#selectors' href='#category' class="#{emphasis_color}")
+                  Category
+            #category.accordion-body.collapse(classX="in")
+              .accordion-inner
+                %ul
+                  %li{style:"list-style-type:none;"}
+                  %br
+                  - @select_categories.sort.each do |category, value|
+                    - if @selected_categories.present?
+                      %li{style:"list-style-type:none;"}
+                        = check_box_tag "selected_categories[#{category}]", value, true
+                        = category
+                    - else
+                      %li{style:"list-style-type:none;"}
+                        = check_box_tag "selected_categories[#{category}]", value
+                        = category
+            .panel
+              = submit_tag "Update Selectors", {name:"categories-submit", class:'btn btn-primary'}
+      - tab_active2 += ' in' if tab_active2.present?
+      .tab-pane#tab2{class:"#{tab_active2}"}
+        %table.table.table-striped.table-hover.table-condensed
           %tr
-            -if (@itinerary_events.any? {|e| e[:event_id] == event.id})
-              %td{title:"Selected as an Itinerary Event"}
-                = radio_button_tag "category_events_interest[#{event.id}]", 0, false, {disabled:"on"}
-                = radio_button_tag "category_events_interest[#{event.id}]", 1, false, {disabled:"on"}
-                = radio_button_tag "category_events_interest[#{event.id}]", 2, false, {disabled:"on"}
-                = radio_button_tag "category_events_interest[#{event.id}]", 3, false, {disabled:"on"}
-                = radio_button_tag "category_events_interest[#{event.id}]", 4, false, {disabled:"on"}
-                - conflict_indicator = "background-color:cyan"
-            -else
+            %th Interest
+            %th Title
+            %th More Info
+            %th
+            %th Date&amp;Time
+            %th Duration
+            %th Zip-Code
+          - @events.each do |event|
+            %tr
+              -if (@itinerary_events.any? {|e| e[:event_id] == event.id})
+                %td{title:"Selected as an Itinerary Event"}
+                  = radio_button_tag "category_events_interest[#{event.id}]", 0, false, {disabled:"on"}
+                  = radio_button_tag "category_events_interest[#{event.id}]", 1, false, {disabled:"on"}
+                  = radio_button_tag "category_events_interest[#{event.id}]", 2, false, {disabled:"on"}
+                  = radio_button_tag "category_events_interest[#{event.id}]", 3, false, {disabled:"on"}
+                  = radio_button_tag "category_events_interest[#{event.id}]", 4, false, {disabled:"on"}
+                  - conflict_indicator = "background-color:cyan"
+              -else
+                %td
+                  = radio_button_tag "category_events_interest[#{event.id}]", 0, false, {title:"None"}
+                  = radio_button_tag "category_events_interest[#{event.id}]", 1, false, {title:"Low"}
+                  = radio_button_tag "category_events_interest[#{event.id}]", 2, false, {title:"Medium"}
+                  = radio_button_tag "category_events_interest[#{event.id}]", 3, false, {title:"High"}
+                  = radio_button_tag "category_events_interest[#{event.id}]", 4, false, {title:"Must Visit"}
+                  - conflict_indicator = ""
+              %td{title:event.title, style:"#{conflict_indicator}"}= (event.title.strip.size < 38 ? event.title.strip.ljust(40) : event.title.strip.truncate(37))
               %td
-                = radio_button_tag "category_events_interest[#{event.id}]", 0, false, {title:"None"}
-                = radio_button_tag "category_events_interest[#{event.id}]", 1, false, {title:"Low"}
-                = radio_button_tag "category_events_interest[#{event.id}]", 2, false, {title:"Medium"}
-                = radio_button_tag "category_events_interest[#{event.id}]", 3, false, {title:"High"}
-                = radio_button_tag "category_events_interest[#{event.id}]", 4, false, {title:"Must Visit"}
-                - conflict_indicator = ""
-            %td{title:event.title, style:"#{conflict_indicator}"}= (event.title.strip.size < 38 ? event.title.strip.ljust(40) : event.title.strip.truncate(37))
-            %td
-              %a{href:event.more_info_url, target:"_blank"} More Info 
-            %td= link_to 'Show', event
-            %td= event.appointed_start.to_datetime.to_formatted_s(:short)  || "[n/a]"
-            %td= event.typical_visit_duration || "[n/a]"
-            %td= event.venue_postal_code || "[n/a]"  
-
-  - if @itinerary_events.present?
-    %h2 Itinerary Events:
-    %div 
-      %table.table.table-striped.table-hover.table-condensed
-        %tr
-          %th Interest
-          %th Title
-          %th More Info
-          %th
-          %th Date&amp;Time
-          %th Duration
-          %th Zip-Code
-        - prior_datetime = nil
-        - prior_interest_level = nil
-        - @itinerary_events.each do |itinerary_event|
+                %a{href:event.more_info_url, target:"_blank"} More Info 
+              %td= link_to 'Show', event
+              %td= event.appointed_start.to_datetime.to_formatted_s(:short)  || "[n/a]"
+              %td= event.typical_visit_duration || "[n/a]"
+              %td= event.venue_postal_code || "[n/a]"  
+        .panel
+          = submit_tag "Update Events", {name:"events-submit", class:'btn btn-primary'}    
+      - tab_active3 += ' in' if tab_active3.present?
+      .tab-pane#tab3{class:"#{tab_active3}"}
+        %table.table.table-striped.table-hover.table-condensed
           %tr
-            - if prior_datetime != itinerary_event.event.appointed_start
-              - conflict_indicator = "background-color:lightgreen"
-              - prior_datetime = itinerary_event.event.appointed_start
-            - else
-              - conflict_indicator = "background-color:tomato"
-            %td
-              = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 0, (itinerary_event.interest_level == 0), {title:"Delete"}
-              = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 1, (itinerary_event.interest_level == 1), {title:"Low"}
-              = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 2, (itinerary_event.interest_level == 2), {title:"Medium"}
-              = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 3, (itinerary_event.interest_level == 3), {title:"High"}
-              = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 4, (itinerary_event.interest_level == 4), {title:"Must Visit"}
-            %td{title:itinerary_event.event.title, style:"#{conflict_indicator}"}= (itinerary_event.event.title.strip.size < 38 ? itinerary_event.event.title.strip.ljust(40) : itinerary_event.event.title.strip.truncate(37))
-            %td
-              %a{href:itinerary_event.event.more_info_url, target:"_blank"} More Info 
-            %td= link_to 'Show', itinerary_event.event
-            %td= itinerary_event.event.appointed_start.to_datetime.to_formatted_s(:short)  || "[n/a]"
-            %td= itinerary_event.event.typical_visit_duration || "[n/a]"
-            %td= itinerary_event.event.venue_postal_code || "[n/a]"
+            %th Interest
+            %th Title
+            %th More Info
+            %th
+            %th Date&amp;Time
+            %th Duration
+            %th Zip-Code
+          - prior_datetime = nil
+          - prior_interest_level = nil
+          - @itinerary_events.each do |itinerary_event|
+            %tr
+              - if prior_datetime != itinerary_event.event.appointed_start
+                - conflict_indicator = "background-color:lightgreen"
+                - prior_datetime = itinerary_event.event.appointed_start
+              - else
+                - conflict_indicator = "background-color:tomato"
+              %td
+                = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 0, (itinerary_event.interest_level == 0), {title:"Delete"}
+                = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 1, (itinerary_event.interest_level == 1), {title:"Low"}
+                = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 2, (itinerary_event.interest_level == 2), {title:"Medium"}
+                = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 3, (itinerary_event.interest_level == 3), {title:"High"}
+                = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 4, (itinerary_event.interest_level == 4), {title:"Must Visit"}
+              %td{title:itinerary_event.event.title, style:"#{conflict_indicator}"}= (itinerary_event.event.title.strip.size < 38 ? itinerary_event.event.title.strip.ljust(40) : itinerary_event.event.title.strip.truncate(37))
+              %td
+                %a{href:itinerary_event.event.more_info_url, target:"_blank"} More Info 
+              %td= link_to 'Show', itinerary_event.event
+              %td= itinerary_event.event.appointed_start.to_datetime.to_formatted_s(:short)  || "[n/a]"
+              %td= itinerary_event.event.typical_visit_duration || "[n/a]"
+              %td= itinerary_event.event.venue_postal_code || "[n/a]"
+        .panel
+          = submit_tag "Update Events", {name:"events-submit", class:'btn btn-primary'}    
   %br
