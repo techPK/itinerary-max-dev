@@ -2,7 +2,7 @@ class EventsController < ApplicationController
   # GET /events
   # GET /events.json
   def index
-    Event.update_all_events(25) unless Event.where(:appointed_start => DateTime.now.beginning_of_day..DateTime.now.end_of_day).present?
+    Event.update_all_events(200) unless Event.where(:appointed_start => DateTime.now.beginning_of_day..(DateTime.now + 2.days).end_of_day).present?
 
     @where = (params[:where] || session[:where]) || ''
     @when_day = (params[:when_day] || session[:when_day]) || ''
@@ -14,8 +14,7 @@ class EventsController < ApplicationController
 
       unless session[:event_selector_id]
         event_selector = EventSelector.create(times_accessed:0)
-        session[:event_selector_id] = event_selector.id
-        puts "=== session[session[:event_selector_id] = #{session[:event_selector_id]} ============$$$$#{session[:event_selector_id]}"     
+        session[:event_selector_id] = event_selector.id    
       end
 
       if event_selector = EventSelector.find_by_id(session[:event_selector_id])
@@ -25,9 +24,6 @@ class EventsController < ApplicationController
         end
         event_selector.times_accessed += 1
         event_selector.save
-        puts "=== event_selector.times_accessed = #{event_selector.times_accessed} ============$$$$#{session[:event_selector_id]}"
-        puts "=== event_selector.event_categories.count = #{event_selector.event_categories.count} ============$$$$#{session[:event_selector_id]}"
-
       end
       
       @events = Event.where(taxonomy:@selected_categories.keys)
@@ -67,7 +63,10 @@ class EventsController < ApplicationController
         @events = @events.queens
       when 'staten_island'
         @events = @events.staten_island
-      end        
+      when /^d{5}$/ #ZipCode
+        @events = @events.where(venue_postal_code:@where)
+      end
+
     else
       @events = []
       if session[:event_selector_id]

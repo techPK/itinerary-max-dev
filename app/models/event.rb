@@ -4,7 +4,7 @@ class Event < ActiveRecord::Base
 	self.inheritance_column = :source_name
 	attr_accessible :Venue_address, :appointed_start, :appointed_stop, :interest_level, :more_info_url,
 		:source_id, :source_name, :taxonomy, :typical_visit_duration, :venue_geolocation, :venue_id, 
-		:venue_name, :venue_postal_code
+		:venue_name, :venue_postal_code, :venue_city_state
 
 		scope :manhattan, where("venue_postal_code LIKE '100%' \
 			OR venue_postal_code LIKE '101%' \
@@ -31,64 +31,95 @@ class Event < ActiveRecord::Base
 	def self.update_all_events(event_count_limit = nil)
 		SeatGeekEvent.load_events(event_count_limit)
 	end
+
+	def self.zip_area_name(zipcode)
+	  return nil unless (zipcode.class == String) 
+	  return nil unless (zipcode =~ /^\d{5}$/)
+	  case zipcode[0,3]
+	    when '100', '101', '102'
+	      :manhattan
+	    when '104'
+	      :bronx
+	    when '112'
+	      :brooklyn
+	    when '111', '113', '114','116'
+	      :queens
+	    when '103'
+	      :staten_island
+	    else
+	      nil
+	  end
+	end
 end
 
 class SeatGeekEvent < Event
 	def self.load_events(event_count_limit = nil)
 		require 'net/http'
 		http2 = Net::HTTP.start('api.seatgeek.com')
-		response = http2.get("/2/events?venue.city=New+York&venue.state=NY&datetime_local.lte=#{(DateTime.now+3).to_s[0,10]}&page=1&per_page=35")
-		response = http2.get("/2/events?venue.city=New+York&venue.state=NY&datetime_local.lte=#{(DateTime.now+3).to_s[0,10]}&page=1&per_page=35") unless response.code == "200"
-		if response.code == "200" 
-			meta = JSON.load(response.body)["meta"]
-			seatgeek_events = JSON.load(response.body)["events"]
-		else
-			puts "SeatGeek http response.code = #{response.code}"
-		end
-		http2.finish
-		
-		return nil if meta.blank?
 		event_count = 0
-		SeatGeekEvent.transaction do
-		self.delete_all
+		page_number = 0
+		begin
+			page_number += 1
+			response = http2.get("/2/events?venue.state=NY&datetime_local.lte=#{(DateTime.now+3.days).to_s[0,10]}&page=#{page_number}&per_page=200")
+			response = http2.get("/2/events?venue.state=NY&datetime_local.lte=#{(DateTime.now+3.days).to_s[0,10]}&page=#{page_number}&per_page=200") unless response.code == "200"
+			break if response.code != "200" 
+			meta = JSON.load(response.body)["meta"]
+			event_count_limit ||= meta['total'] 
+			seatgeek_events = JSON.load(response.body)["events"]
+			break if seatgeek_events.blank?
+			event_count = get_page_events(seatgeek_events,event_count_limit,event_count)
+			if event_count_limit
+				break if event_count >= event_count_limit
+			end
+		end until(event_count >= event_count_limit) 
 
+		http2.finish
+		SeatGeekEvent.where(updated_at:(DateTime.now-3.hours)).delete_all
+		event_count
+	end
+
+
+
+	def self.get_page_events(seatgeek_events,event_count_limit,event_count)	
 		taxonomies = {}
 		acceptable_date_range =  DateTime.now.beginning_of_day..(DateTime.now + 2.days).end_of_day
 
 		seatgeek_events.each do |seatgeek_event|
+			next unless SeatGeekEvent.zip_area_name(seatgeek_event['venue']["postal_code"])
 			next if (seatgeek_event["date_tbd"] == true) or (seatgeek_event["time_tbd"] == true)
 			puts "#{seatgeek_event["datetime_local"]} #{seatgeek_event["datetime_local"].class} | #{acceptable_date_range.cover?(seatgeek_event["datetime_local"])}"
 			next unless acceptable_date_range.cover?DateTime.parse(seatgeek_event["datetime_local"])
-			event = self.new
-    		event.title = seatgeek_event["title"]
-    		event.source_id = seatgeek_event["id"]
-        	event.appointed_start = seatgeek_event["datetime_local"]
-    		event.appointed_stop
-    		event.typical_visit_duration
-    		event.venue_id = seatgeek_event['venue']["id"] 
-    		event.venue_name = seatgeek_event['venue']["name"]
-    		event.venue_address = seatgeek_event['venue']["address"]
-    		event.venue_postal_code =  seatgeek_event['venue']["postal_code"]
-    		event.venue_geolocation =  seatgeek_event['venue']["location"]
-    		
-    		event_taxonomies = []
+			event = self.find_or_initialize_by_source_id(seatgeek_event["id"])
+			event.title = seatgeek_event["title"]
+			event.source_id = seatgeek_event["id"]
+	    	event.appointed_start = seatgeek_event["datetime_local"]
+			event.appointed_stop
+			event.typical_visit_duration = 3.hours
+			event.venue_id = seatgeek_event['venue']["id"] 
+			event.venue_name = seatgeek_event['venue']["name"]
+			event.venue_address = seatgeek_event['venue']["address"]
+			event.venue_city_state = seatgeek_event['venue']["city"] + ', ' + seatgeek_event['venue']["state"]
+			event.venue_postal_code =  seatgeek_event['venue']["postal_code"]
+			event.venue_geolocation =  seatgeek_event['venue']["location"]
+			
+			event_taxonomies = []
 			seatgeek_event["taxonomies"].each do |tax| 
 				event_taxonomies << tax["name"]
 			end
-    		event.taxonomy = event_taxonomies.join(' | ')
+			event.taxonomy = event_taxonomies.join(' | ')
 
-    		event.more_info_url = seatgeek_event['url']
-    		event.more_info_url2 = seatgeek_event['performers'].first["url"]
-    		event.interest_level = 0
-    		event.save
-    		if event_count_limit
-    			event_count += 1
-    			break if event_count >= event_count_limit
-    		end
-		end
+			event.more_info_url = seatgeek_event['url']
+			event.more_info_url2 = seatgeek_event['performers'].first["url"]
+			event.interest_level = 0
+			event.save ##### 
+			event_count += 1
+			if event_count_limit
+				return event_count if event_count >= event_count_limit
+			end
 		end
 		event_count
 	end
+
 end
 
 class NycParkEvent < Event
@@ -99,43 +130,43 @@ class NycParkEvent < Event
 	feed_url = 'http://www.nycgovparks.org/xml/events_300_rss.xml'
     xml_doc = REXML::Document.new open(feed_url)
 	event_count = 0
-	NycParkEvent.transaction do
+#	NycParkEvent.transaction do
 	xml_doc.get_elements('/rss/channel/item').each do |item| 
-		event = NycParkEvent.new			
-		event[:taxonomy] = item.get_text("event:categories")
-		event[:title] = item.get_text("title")
-		event[:source_id] = item.get_text("guid")
-		event[:more_info_url] = item.get_text("link")
-		event[:appointed_start] =  
-			DateTime.new(item.get_text("event:startdate").to_s[0,4].to_i,
-				item.get_text("event:startdate").to_s[6,2].to_i,
-				item.get_text("event:startdate").to_s[8,2].to_i,
-				item.get_text("event:starttime").to_s[11,2].to_i,
-				item.get_text("event:starttime").to_s[14,2].to_i, 0
+		event = self.find_or_initialize_by_source_id(item.get_text("guid").value)
+		event.taxonomy = item.get_text("event:categories").value
+		event.title = item.get_text("title").value
+		event.source_id = item.get_text("guid").value
+		event.more_info_url = item.get_text("link").value
+		event.appointed_start =  
+			DateTime.new(item.get_text("event:startdate").value[0,4].to_i,
+				item.get_text("event:startdate").value[6,2].to_i,
+				item.get_text("event:startdate").value[8,2].to_i,
+				item.get_text("event:starttime").value[11,2].to_i,
+				item.get_text("event:starttime").value[14,2].to_i, 0
 			)
-		event[:appointed_stop] =  
-			DateTime.new(item.get_text("event:enddate").to_s[0,4].to_i,
-				item.get_text("event:enddate").to_s[6,2].to_i,
-				item.get_text("event:enddate").to_s[8,2].to_i,
-				item.get_text("event:endtime").to_s[11,2].to_i,
-				item.get_text("event:endtime").to_s[14,2].to_i
+		event.appointed_stop =  
+			DateTime.new(item.get_text("event:enddate").value[0,4].to_i,
+				item.get_text("event:enddate").value[6,2].to_i,
+				item.get_text("event:enddate").value[8,2].to_i,
+				item.get_text("event:endtime").value[11,2].to_i,
+				item.get_text("event:endtime").value[14,2].to_i
 			)
-		event[:venue_name] = item.get_text("event:parknames")
-		event[:venue_address] = item.get_text("event:location")
-		event[:venue_geolocation] = item.get_text("event:coordinates")
+		event.venue_name = item.get_text("event:parknames").try(:value)
+		event.venue_address = item.get_text("event:location").try(:value)
+		event.venue_geolocation = item.get_text("event:coordinates").try(:value)
 
 		if event[:appointed_stop].present? && event[:appointed_start].present?
-			event[:typical_visit_duration] = 
+			event.typical_visit_duration = 
 				event[:appointed_stop] - event[:appointed_start]
 		end
-		event[:interest_level] = 0
+		event.interest_level = 0
 		event.save
 		if event_count_limit
 			event_count += 1
 			break if event_count >= event_count_limit
 		end
 	end
-	end
+#	end
 	event_count
   end
 end

@@ -36,28 +36,46 @@
                 %ul
                   %li{style:"list-style-type:none;"}
                     = label_tag 'where_NYC', {title:'Anywhere in NYC'} do
-                      = radio_button_tag "where", 'NYC', (@where.downcase.include?('nyc') || @where.blank?)
+                      = radio_button_tag "where", 'nyc', (@where.downcase.include?('nyc') || @where.blank?)
                       [NYC]
-                  %li{style:"list-style-type:none;"}
-                    = label_tag 'where_Manhattan' do
-                      = radio_button_tag "where", 'Manhattan', @where.downcase.include?('manhattan')
-                      Manhattan 
-                  %li{style:"list-style-type:none;"}
-                    = label_tag 'where_Bronx' do
-                      = radio_button_tag "where", 'Bronx', @where.downcase.include?('bronx')
-                      Bronx
-                  %li{style:"list-style-type:none;"}
-                    = label_tag 'where_Brooklyn' do
-                      = radio_button_tag "where", 'Brooklyn', @where.downcase.include?('brooklyn')
-                      Brooklyn
-                  %li{style:"list-style-type:none;"}
-                    = label_tag 'where_Queens' do
-                      = radio_button_tag "where", 'Queens', @where.downcase.include?('queens')
-                      Queens
-                  %li{style:"list-style-type:none;"}
-                    = label_tag 'where_Staten-Island' do
-                      = radio_button_tag "where", 'Staten-Island', @where.downcase.include?('staten-island')
-                      Staten-Island
+                  -if (@where.blank? || @where == 'nyc' || @where == 'manhattan') || (Event.zip_area_name(@where) == :manhattan) 
+                    %li{style:"list-style-type:none;"}
+                      = label_tag 'where_Manhattan' do
+                        = radio_button_tag "where", 'manhattan', @where.downcase.include?('manhattan')
+                        Manhattan 
+                  -if (@where.blank? || @where == 'nyc' || @where == 'bronx') || (Event.zip_area_name(@where) == :bronx) 
+                    %li{style:"list-style-type:none;"}
+                      = label_tag 'where_Bronx' do
+                        = radio_button_tag "where", 'bronx', @where.downcase.include?('bronx')
+                        Bronx
+                  -if (@where.blank? || @where == 'nyc' || @where == 'brooklyn') || (Event.zip_area_name(@where) == :brooklyn) 
+                    %li{style:"list-style-type:none;"}
+                      = label_tag 'where_Brooklyn' do
+                        = radio_button_tag "where", 'brooklyn', @where.downcase.include?('brooklyn')
+                        Brooklyn
+                  -if (@where.blank? || @where == 'nyc' || @where == 'queens') || (Event.zip_area_name(@where) == :queens) 
+                    %li{style:"list-style-type:none;"}
+                      = label_tag 'where_Queens' do
+                        = radio_button_tag "where", 'queens', @where.downcase.include?('queens')
+                        Queens
+                  -if (@where.blank? || @where == 'nyc' || @where == 'staten_island') || (Event.zip_area_name(@where) == :staten_island) 
+                    %li{style:"list-style-type:none;"}
+                      = label_tag 'where_Staten_Island' do
+                        = radio_button_tag "where", 'staten_island', @where.downcase.include?('staten_island')
+                        Staten_Island
+                  - if (@where =~ /^\d{5}$/) 
+                    - Event.send(Event.zip_area_name(@where)).pluck(:venue_postal_code).uniq.sort.each do |zipcode|
+                      %li{style:"list-style-type:none;"}
+                        = label_tag "where_Zip_Code_#{zipcode}" do
+                          = radio_button_tag "where", "#{zipcode}", @where.downcase.include?(zipcode)
+                          = zipcode
+                  - if (%w(manhattan bronx brooklyn queens staten_island).include?(@where))
+                    - Event.send(@where.to_sym).pluck(:venue_postal_code).uniq.sort.each do |zipcode|
+                      %li{style:"list-style-type:none;"}
+                        = label_tag "where_Zip_Code_#{zipcode}" do
+                          = radio_button_tag "where", "#{zipcode}", @where.downcase.include?(zipcode)
+                          = zipcode
+
           .accordion-group
             .accordion-heading
               %h4
@@ -211,7 +229,7 @@
                 %a{href:event.more_info_url, target:"_blank"} More Info 
               %td= link_to 'Show', event
               %td= event.appointed_start.to_datetime.to_formatted_s(:short)  || "[n/a]"
-              %td= event.typical_visit_duration || "[n/a]"
+              %td= seconds_to_hours_and_minutes_time(event.typical_visit_duration) || "[n/a]"
               %td= event.venue_postal_code || "[n/a]"  
         .panel
           = submit_tag "Update Events", {name:"events-submit", class:'btn btn-primary'}    

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130724174214) do
+ActiveRecord::Schema.define(:version => 20130820185302) do
 
   create_table "event_categories", :force => true do |t|
     t.integer  "event_selector_id"
@@ -46,6 +46,7 @@ ActiveRecord::Schema.define(:version => 20130724174214) do
     t.datetime "updated_at",             :null => false
     t.string   "title"
     t.string   "more_info_url2"
+    t.string   "venue_city_state"
   end
 
   create_table "itinerary_events", :force => true do |t|
