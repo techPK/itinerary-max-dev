@@ -184,6 +184,9 @@
                 %ul
                   %li{style:"list-style-type:none;"}
                   %br
+                  - if @select_categories.count < 1
+                    %li{style:"list-style-type:none;", title:"Change your Event Selectors", class:"text-error"}
+                      [No Category found for current Where, When, and/or Price Event Selectors]
                   - @select_categories.sort.each do |category, value|
                     - if @selected_categories.present?
                       %li{style:"list-style-type:none;"}

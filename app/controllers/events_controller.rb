@@ -9,6 +9,47 @@ class EventsController < ApplicationController
     @when_time = (params[:when_time] || session[:when_time]) || ''
     @admission = (params[:admission] || session[:admission]) || ''
 
+    @events = Event.scoped
+
+    case @where.downcase
+      when 'manhattan'
+        @events = @events.manhattan
+      when 'bronx'
+        @events = @events.bronx
+      when 'brooklyn'
+        @events = @events.brooklyn
+      when 'queens'
+        @events = @events.queens
+      when 'staten_island'
+        @events = @events.staten_island
+      when /^\d{5}$/ #ZipCode
+        @events = @events.where(venue_postal_code:@where)
+    end
+
+    case @when_day.downcase
+      when 'today'
+        @events = @events.today
+      when 'tomorrow'
+        @events = @events.tomorrow
+      when 'beyond_tomorrow'
+        @events = @events.beyond_tomorrow
+    end        
+
+    case @when_time.downcase
+      when 'early_morning'
+        @events = @events.early_morning
+      when 'morning'
+        @events = @events.morning
+      when 'afternoon'
+        @events = @events.afternoon
+      when 'evening'
+        @events = @events.evening
+      when 'night'
+        @events = @events.night
+      when 'late_night'
+        @events = @events.late_night
+    end        
+
     if @selected_categories = params[:selected_categories]
       @select_categories = @selected_categories.keys
 
@@ -25,58 +66,19 @@ class EventsController < ApplicationController
         event_selector.times_accessed += 1
         event_selector.save
       end
-      
-      @events = Event.where(taxonomy:@selected_categories.keys)
 
-      case @when_day.downcase
-      when 'today'
-        @events = @events.today
-      when 'tomorrow'
-        @events = @events.tomorrow
-      when 'beyond_tomorrow'
-        @events = @events.beyond_tomorrow
-      end        
-
-      case @when_time.downcase
-      when 'early_morning'
-        @events = @events.early_morning
-      when 'morning'
-        @events = @events.morning
-      when 'afternoon'
-        @events = @events.afternoon
-      when 'evening'
-        @events = @events.evening
-      when 'night'
-        @events = @events.night
-      when 'late_night'
-        @events = @events.late_night
-      end        
-
-      case @where.downcase
-      when 'manhattan'
-        @events = @events.manhattan
-      when 'bronx'
-        @events = @events.bronx
-      when 'brooklyn'
-        @events = @events.brooklyn
-      when 'queens'
-        @events = @events.queens
-      when 'staten_island'
-        @events = @events.staten_island
-      when /^d{5}$/ #ZipCode
-        @events = @events.where(venue_postal_code:@where)
-      end
-
+      @events = @events.where(taxonomy:@selected_categories.keys) 
+      @select_categories = [] if @events.count < 1
     else
-      @events = []
       if session[:event_selector_id]
         event_selector = EventSelector.find_by_id(session[:event_selector_id])
         EventCategory.delete_all(event_selector_id:event_selector.id) 
       end
       @select_categories = 
-        Event.where(
+        @events.where(
           :appointed_start => 
             DateTime.now.beginning_of_day..(DateTime.now + 2.days).end_of_day).uniq.pluck(:taxonomy)
+      @events = []
     end
 
     if params[:category_events_interest]
