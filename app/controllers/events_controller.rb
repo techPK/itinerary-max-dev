@@ -50,7 +50,7 @@ class EventsController < ApplicationController
         @events = @events.late_night
     end        
 
-    if @selected_categories = params[:selected_categories]
+    if (@selected_categories = (params[:category_select_none] ? nil : params[:selected_categories])) && params[:category_select_all].blank?
       @select_categories = @selected_categories.keys
 
       unless session[:event_selector_id]
@@ -67,7 +67,10 @@ class EventsController < ApplicationController
         event_selector.save
       end
 
-      @events = @events.where(taxonomy:@selected_categories.keys) 
+      @events = @events.where(taxonomy:@selected_categories.keys).where(
+          :appointed_start => 
+            DateTime.now.beginning_of_day..(DateTime.now + 2.days).end_of_day)
+
       @select_categories = [] if @events.count < 1
     else
       if session[:event_selector_id]
@@ -78,7 +81,17 @@ class EventsController < ApplicationController
         @events.where(
           :appointed_start => 
             DateTime.now.beginning_of_day..(DateTime.now + 2.days).end_of_day).uniq.pluck(:taxonomy)
-      @events = []
+      if params[:category_select_all]
+        @selected_categories = {} 
+        @select_categories.each do |select_category|
+          @selected_categories[select_category] = true 
+        end
+        @events = @events.where(taxonomy:@select_categories).where(
+            :appointed_start => 
+              DateTime.now.beginning_of_day..(DateTime.now + 2.days).end_of_day)      
+      else
+        @events = []
+      end
     end
 
     if params[:category_events_interest]

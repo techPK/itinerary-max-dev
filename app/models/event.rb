@@ -60,8 +60,8 @@ class SeatGeekEvent < Event
 		page_number = 0
 		begin
 			page_number += 1
-			response = http2.get("/2/events?venue.state=NY&datetime_local.lte=#{(DateTime.now+3.days).to_s[0,10]}&page=#{page_number}&per_page=200")
-			response = http2.get("/2/events?venue.state=NY&datetime_local.lte=#{(DateTime.now+3.days).to_s[0,10]}&page=#{page_number}&per_page=200") unless response.code == "200"
+			response = http2.get("/2/events?aid=10548&venue.state=NY&datetime_local.lte=#{(DateTime.now+3.days).to_s[0,10]}&page=#{page_number}&per_page=200")
+			response = http2.get("/2/events?aid=10548&venue.state=NY&datetime_local.lte=#{(DateTime.now+3.days).to_s[0,10]}&page=#{page_number}&per_page=200") unless response.code == "200"
 			break if response.code != "200" 
 			meta = JSON.load(response.body)["meta"]
 			event_count_limit ||= meta['total'] 

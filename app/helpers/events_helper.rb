@@ -1,10 +1,11 @@
 module EventsHelper
 	def seconds_to_hours_and_minutes_time(seconds = nil)
 		return nil if seconds.blank?
-		hours, minutes = seconds.divmod(60)
+		minutes, secs = seconds.divmod(60)
+		hours, minutes = minutes.divmod(60)
 		hours_text = "%02d" % hours
 		minutes_text = "%02d" % minutes
-		"#{hours_text}:#{minutes_text}"
+		"#{hours_text}:#{minutes_text}:00"
 	end
 	def zip_area_name(zipcode)
 	  return nil unless (zipcode.class == String) 
