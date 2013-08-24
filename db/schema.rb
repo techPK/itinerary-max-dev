@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130820185302) do
+ActiveRecord::Schema.define(:version => 20130824010203) do
 
   create_table "event_categories", :force => true do |t|
     t.integer  "event_selector_id"
@@ -40,13 +40,16 @@ ActiveRecord::Schema.define(:version => 20130820185302) do
     t.string   "venue_postal_code"
     t.string   "venue_geolocation"
     t.string   "taxonomy"
-    t.string   "more_info_url"
     t.integer  "interest_level"
     t.datetime "created_at",             :null => false
     t.datetime "updated_at",             :null => false
     t.string   "title"
-    t.string   "more_info_url2"
     t.string   "venue_city_state"
+    t.string   "url"
+    t.string   "venue_url"
+    t.integer  "tickets_available"
+    t.string   "lowest_price"
+    t.string   "highest_price"
   end
 
   create_table "itinerary_events", :force => true do |t|

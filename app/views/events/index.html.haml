@@ -204,77 +204,107 @@
       .tab-pane#tab2{class:"#{tab_active2}"}
         #tab2overflow{style:"overflow:auto; max-height:800px;"}
           %table.table.table-striped.table-hover.table-condensed
-            %tr
-              %th Interest
-              %th Category
-              %th Title
-              %th Tickets
-              %th Date&amp;Time
-              %th Duration
-              %th Zip-Code
-            - @events.each do |event|
+            %thead
               %tr
-                -if (@itinerary_events.any? {|e| e[:event_id] == event.id})
-                  %td{title:"Selected as an Itinerary Event"}
-                    = radio_button_tag "category_events_interest[#{event.id}]", 0, false, {disabled:"on"}
-                    = radio_button_tag "category_events_interest[#{event.id}]", 1, false, {disabled:"on"}
-                    = radio_button_tag "category_events_interest[#{event.id}]", 2, false, {disabled:"on"}
-                    = radio_button_tag "category_events_interest[#{event.id}]", 3, false, {disabled:"on"}
-                    = radio_button_tag "category_events_interest[#{event.id}]", 4, false, {disabled:"on"}
-                    - conflict_indicator = "background-color:cyan"
-                -else
+                %th Interest
+                %th Category
+                %th Tickets Available
+                %th Lowest Price
+                %th Highest Price
+                %th Title
+                %th Web-Links
+                %th Date&amp;Time
+                %th Duration
+                %th Zip-Code
+            %tbody
+              - @events.each do |event|
+                %tr
+                  -if (@itinerary_events.any? {|e| e[:event_id] == event.id})
+                    %td{title:"Selected as an Itinerary Event"}
+                      = radio_button_tag "category_events_interest[#{event.id}]", 0, false, {disabled:"on"}
+                      = radio_button_tag "category_events_interest[#{event.id}]", 1, false, {disabled:"on"}
+                      = radio_button_tag "category_events_interest[#{event.id}]", 2, false, {disabled:"on"}
+                      = radio_button_tag "category_events_interest[#{event.id}]", 3, false, {disabled:"on"}
+                      = radio_button_tag "category_events_interest[#{event.id}]", 4, false, {disabled:"on"}
+                      - conflict_indicator = "background-color:cyan"
+                  -else
+                    %td
+                      = radio_button_tag "category_events_interest[#{event.id}]", 0, false, {title:"None"}
+                      = radio_button_tag "category_events_interest[#{event.id}]", 1, false, {title:"Low"}
+                      = radio_button_tag "category_events_interest[#{event.id}]", 2, false, {title:"Medium"}
+                      = radio_button_tag "category_events_interest[#{event.id}]", 3, false, {title:"High"}
+                      = radio_button_tag "category_events_interest[#{event.id}]", 4, false, {title:"Must Visit"}
+                      - conflict_indicator = ""
+                  %td{title:event.taxonomy}= (event.taxonomy.strip.size < 38 ? event.taxonomy.strip.ljust(40) : event.taxonomy.strip.truncate(37))
                   %td
-                    = radio_button_tag "category_events_interest[#{event.id}]", 0, false, {title:"None"}
-                    = radio_button_tag "category_events_interest[#{event.id}]", 1, false, {title:"Low"}
-                    = radio_button_tag "category_events_interest[#{event.id}]", 2, false, {title:"Medium"}
-                    = radio_button_tag "category_events_interest[#{event.id}]", 3, false, {title:"High"}
-                    = radio_button_tag "category_events_interest[#{event.id}]", 4, false, {title:"Must Visit"}
-                    - conflict_indicator = ""
-                %td{title:event.taxonomy}= (event.taxonomy.strip.size < 38 ? event.taxonomy.strip.ljust(40) : event.taxonomy.strip.truncate(37))                
-                %td{title:event.title, style:"#{conflict_indicator}"}= (event.title.strip.size < 38 ? event.title.strip.ljust(40) : event.title.strip.truncate(37))
-                %td
-                  %a{href:event.more_info_url, target:"_blank", title:"Shop for Tickets"}
-                    %i.icon-shopping-cart               
-                %td= event.appointed_start.to_datetime.to_formatted_s(:short)  || "[n/a]"
-                %td= seconds_to_hours_and_minutes_time(event.typical_visit_duration) || "[n/a]"
-                %td= event.venue_postal_code || "[n/a]"  
+                    = (event.tickets_available.present? ) ? number_with_delimiter(event.tickets_available, delimiter:',') : "unknown"
+                  %td
+                    = (event.lowest_price.present? && (event.lowest_price =~ /^\d*[.]\d*$/)) ? number_to_currency(event.lowest_price) : "unknown"
+                  %td
+                    = (event.highest_price.present? && (event.highest_price =~ /^\d*[.]\d*$/)) ? number_to_currency(event.highest_price) : "unknown"
+                  %td{title:event.title, style:"#{conflict_indicator}"}= (event.title.strip.size < 38 ? event.title.strip.ljust(40) : event.title.strip.truncate(37))
+                  %td
+                    - if event.url.present?
+                      %a{href:event.url, target:"_blank", title:"Shop for Tickets"}
+                        %i.icon-shopping-cart
+                    - if event.venue_url.present?
+                      %a{href:event.venue_url, target:"_blank", title:"Venue Information"}
+                        %i.icon-globe
+                  %td= event.appointed_start.to_datetime.to_formatted_s(:short)  || "[n/a]"
+                  %td= seconds_to_hours_and_minutes_time(event.typical_visit_duration) || "[n/a]"
+                  %td= event.venue_postal_code || "[n/a]"  
         .panel
           = submit_tag "Update Events", {name:"events-submit", class:'btn btn-primary'}    
       - tab_active3 += ' in' if tab_active3.present?
       .tab-pane#tab3{class:"#{tab_active3}", style:"overflow:auto; max-height:800px;"}
         #tab3overflow{style:"overflow:auto; max-height:800px;"}
           %table.table.table-striped.table-hover.table-condensed
-            %tr
-              %th Interest
-              %th Category
-              %th Title
-              %th Tickets
-              %th Date&amp;Time
-              %th Duration
-              %th Zip-Code
-            - prior_datetime = nil
-            - prior_interest_level = nil
-            - @itinerary_events.each do |itinerary_event|
+            %thead
               %tr
-                - if prior_datetime != itinerary_event.event.appointed_start
-                  - conflict_indicator = "background-color:lightgreen"
-                  - prior_datetime = itinerary_event.event.appointed_start
-                - else
-                  - conflict_indicator = "background-color:tomato"
-                %td
-                  = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 0, (itinerary_event.interest_level == 0), {title:"Delete"}
-                  = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 1, (itinerary_event.interest_level == 1), {title:"Low"}
-                  = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 2, (itinerary_event.interest_level == 2), {title:"Medium"}
-                  = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 3, (itinerary_event.interest_level == 3), {title:"High"}
-                  = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 4, (itinerary_event.interest_level == 4), {title:"Must Visit"}
-                %td{title:itinerary_event.event.taxonomy}= (itinerary_event.event.taxonomy.strip.size < 38 ? itinerary_event.event.taxonomy.strip.ljust(40) : itinerary_event.event.taxonomy.strip.truncate(37))
-                %td{title:itinerary_event.event.title, style:"#{conflict_indicator}"}= (itinerary_event.event.title.strip.size < 38 ? itinerary_event.event.title.strip.ljust(40) : itinerary_event.event.title.strip.truncate(37))
-                %td
-                  %a{href:itinerary_event.event.more_info_url, target:"_blank"}
-                    %i.icon-shopping-cart 
-                %td= itinerary_event.event.appointed_start.to_datetime.to_formatted_s(:short)  || "[n/a]"
-                %td= seconds_to_hours_and_minutes_time(itinerary_event.event.typical_visit_duration) || "[n/a]"
-                %td= itinerary_event.event.venue_postal_code || "[n/a]"
+                %th Interest
+                %th Category
+                %th Tickets Available
+                %th Lowest Price
+                %th Highest Price
+                %th Title
+                %th Web-Links
+                %th Date&amp;Time
+                %th Duration
+                %th Zip-Code
+            %tbody
+              - prior_datetime = nil
+              - prior_interest_level = nil
+              - @itinerary_events.each do |itinerary_event|
+                %tr
+                  - if prior_datetime != itinerary_event.event.appointed_start
+                    - conflict_indicator = "background-color:lightgreen"
+                    - prior_datetime = itinerary_event.event.appointed_start
+                  - else
+                    - conflict_indicator = "background-color:tomato"
+                  %td
+                    = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 0, (itinerary_event.interest_level == 0), {title:"Delete"}
+                    = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 1, (itinerary_event.interest_level == 1), {title:"Low"}
+                    = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 2, (itinerary_event.interest_level == 2), {title:"Medium"}
+                    = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 3, (itinerary_event.interest_level == 3), {title:"High"}
+                    = radio_button_tag "itinerary_events_interest[#{itinerary_event.event_id}]", 4, (itinerary_event.interest_level == 4), {title:"Must Visit"}
+                  %td{title:itinerary_event.event.taxonomy}= (itinerary_event.event.taxonomy.strip.size < 38 ? itinerary_event.event.taxonomy.strip.ljust(40) : itinerary_event.event.taxonomy.strip.truncate(37))
+                  %td
+                    = (itinerary_event.event.tickets_available.present?) ? number_with_delimiter(itinerary_event.event.tickets_available, delimiter:',') : "unknown"
+                  %td
+                    = (itinerary_event.event.lowest_price.present? && (itinerary_event.event.lowest_price =~ /^\d*[.]\d*$/)) ? number_to_currency(itinerary_event.event.lowest_price) : "unknown"
+                  %td
+                    = (itinerary_event.event.highest_price.present? && (itinerary_event.event.highest_price =~ /^\d*[.]\d*$/)) ? number_to_currency(itinerary_event.event.highest_price) : "unknown"
+                  %td{title:itinerary_event.event.title, style:"#{conflict_indicator}"}= (itinerary_event.event.title.strip.size < 38 ? itinerary_event.event.title.strip.ljust(40) : itinerary_event.event.title.strip.truncate(37))
+                  %td
+                    - if itinerary_event.event.url.present?
+                      %a{href:itinerary_event.event.url, target:"_blank", title:"Shop for Tickets"}
+                        %i.icon-shopping-cart
+                    - if itinerary_event.event.venue_url.present?
+                      %a{href:itinerary_event.event.venue_url, target:"_blank", title:"Venue Information"}
+                        %i.icon-globe
+                  %td= itinerary_event.event.appointed_start.to_datetime.to_formatted_s(:short)  || "[n/a]"
+                  %td= seconds_to_hours_and_minutes_time(itinerary_event.event.typical_visit_duration) || "[n/a]"
+                  %td= itinerary_event.event.venue_postal_code || "[n/a]"
         .panel
           = submit_tag "Update Events", {name:"events-submit", class:'btn btn-primary'}    
   %br

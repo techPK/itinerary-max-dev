@@ -74,7 +74,7 @@ class SeatGeekEvent < Event
 		end until(event_count >= event_count_limit) 
 
 		http2.finish
-		SeatGeekEvent.where(updated_at:(DateTime.now-3.hours)).delete_all
+		SeatGeekEvent.where(updated_at:(DateTime.new)..(DateTime.now.midnight)).delete_all
 		event_count
 	end
 
@@ -87,7 +87,6 @@ class SeatGeekEvent < Event
 		seatgeek_events.each do |seatgeek_event|
 			next unless SeatGeekEvent.zip_area_name(seatgeek_event['venue']["postal_code"])
 			next if (seatgeek_event["date_tbd"] == true) or (seatgeek_event["time_tbd"] == true)
-			puts "#{seatgeek_event["datetime_local"]} #{seatgeek_event["datetime_local"].class} | #{acceptable_date_range.cover?(seatgeek_event["datetime_local"])}"
 			next unless acceptable_date_range.cover?DateTime.parse(seatgeek_event["datetime_local"])
 			event = self.find_or_initialize_by_source_id(seatgeek_event["id"])
 			event.title = seatgeek_event["title"]
@@ -95,23 +94,26 @@ class SeatGeekEvent < Event
 	    	event.appointed_start = seatgeek_event["datetime_local"]
 			event.appointed_stop
 			event.typical_visit_duration = 3.hours
+			event.tickets_available = seatgeek_event['stats']['listing_count']
+			event.lowest_price = seatgeek_event['stats']['lowest_price']
+			event.highest_price = seatgeek_event['stats']['highest_price']
 			event.venue_id = seatgeek_event['venue']["id"] 
 			event.venue_name = seatgeek_event['venue']["name"]
 			event.venue_address = seatgeek_event['venue']["address"]
 			event.venue_city_state = seatgeek_event['venue']["city"] + ', ' + seatgeek_event['venue']["state"]
 			event.venue_postal_code =  seatgeek_event['venue']["postal_code"]
 			event.venue_geolocation =  seatgeek_event['venue']["location"]
-			
+			event.venue_url = seatgeek_event['venue']['url']
 			event_taxonomies = []
+			event.url = seatgeek_event['url'] 
+
 			seatgeek_event["taxonomies"].each do |tax| 
 				event_taxonomies << tax["name"]
 			end
 			event.taxonomy = event_taxonomies.join(' | ')
 
-			event.more_info_url = seatgeek_event['url']
-			event.more_info_url2 = seatgeek_event['performers'].first["url"]
 			event.interest_level = 0
-			event.save ##### 
+			event.save 
 			event_count += 1
 			if event_count_limit
 				return event_count if event_count >= event_count_limit
